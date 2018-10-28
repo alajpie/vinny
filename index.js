@@ -36,8 +36,8 @@ dclient.on("ready", () => {
   });
   // process.on("unhandledRejection", e => {
   //     dclient.channels
-  //         .get("499351756606668801")
-  //         .send(e.stack + " <@144880429533626368>");
+  //         .get("499351756606668801") // #bot-testing-chamber
+  //         .send(e.stack + " <@144880429533626368>"); // @Marble#2132
   // });
   const tzt = () => {
     // timezone timer
@@ -57,13 +57,13 @@ dclient.on("ready", () => {
     if (x !== dclient.channels.get(onemphChannel).lastMessageID) {
       lockedCheck(true);
     }
-    dclient.channels.get("499351756606668801").startTyping();
+    dclient.channels.get("499351756606668801").startTyping(); // #bot-testing-chamber
   });
 });
 
 dclient.on("error", () => {
   dclient.channels
-    .get("472118062825472011") // allspam
+    .get("472118062825472011") // #dept-of-bot-affairs
     .send("Discord made a fucky wucky and disconnected me >:(");
 });
 
@@ -172,7 +172,7 @@ async function lockedCheck(refresh) {
 
 async function timezoneUpdate() {
   let out =
-    "Timezones! Message <@144880429533626368> with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself!";
+    "Timezones! Message <@144880429533626368> with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself!"; // @Marble#2132
   const tzdataProcessed = [];
   Object.keys(tzdata).forEach(x => {
     let offset = moment.tz.zone(tzdata[x]).utcOffset(moment()) / -60;
@@ -205,13 +205,13 @@ dclient.on("messageUpdate", (prev, next) => {
 
 dclient.on("guildMemberUpdate", (prev, next) => {
   if (
-    next.guild.id === "472079800744411136" &&
-    next.roles.has("499907364485464074") &&
+    next.guild.id === "472079800744411136" && // LGG
+    next.roles.has("499907364485464074") && // @nick-museum
     prev.nickname !== next.nickname
   ) {
     dclient.channels
-      .get("498572261746278441")
-      .send(`${next.user.tag}: ${next.nickname}`); // #nick-museum
+      .get("498572261746278441") // #nick-museum
+      .send(`${next.user.tag}: ${next.nickname}`);
   }
 });
 
@@ -269,11 +269,11 @@ function parse(msg) {
       );
       if (match[1] !== "stinky") {
         dclient.channels
-          .get("481658230049603604")
+          .get("481658230049603604") // #mod-lounge
           .send(
             `${msg.author.tag} said: \`${msg.content}\` in #${
               msg.channel.name
-            } <@&472080504460541952>`
+            } <@&472080504460541952>` // @mods
           );
       }
       msg.delete();
@@ -464,7 +464,7 @@ function parse(msg) {
         .execAsync();
       if (x[0] > results[2]) {
         msg.channel.send(
-          "Votes > threshold, THIS SHOULD NEVER HAPPEN <@144880429533626368>"
+          "Votes > threshold, THIS SHOULD NEVER HAPPEN <@144880429533626368>" // @Marble#2132
         );
       }
       if (
