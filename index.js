@@ -225,11 +225,11 @@ dclient.on("message", msg => {
   }
   if (msg.content.includes(";time")) {
     msg.content = msg.content.replace(/( ?;time|;time ?|;time)/g, "");
-    const t1 = process.hrtime.bigint();
+    const t1 = process.hrtime();
     parse(msg);
-    const t2 = process.hrtime.bigint();
+    const t2 = process.hrtime(t1);
     msg.channel.send(
-      `Processing took ${Math.round((Number(t2 - t1) / 1e6) * 100) / 100}ms`
+      `Processing took ${Math.round((t2[1] / 1e6) * 100) / 100}ms`
     );
   } else {
     parse(msg);
