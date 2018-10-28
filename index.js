@@ -266,7 +266,7 @@ function parse(msg) {
       msg.reply(
         "you used a word that's on our blocklist. This incident has been reported."
       );
-      if (match[1] !== "stinky") {
+      if (match[1] != "stinky") {
         dclient.channels
           .get("481658230049603604")
           .send(
