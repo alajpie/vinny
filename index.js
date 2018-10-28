@@ -258,7 +258,8 @@ function parse(msg) {
   }
   if (msg.guild && msg.guild.id === "498598527572770816") {
     // Vinny staging
-  } else {
+  } else if (msg.guild && msg.guild.id === "472079800744411136") {
+    // LGG
     let match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
