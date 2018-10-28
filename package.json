@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "async-lock": "^1.1.3",
+    "bluebird": "^3.5.2",
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.1.0",
+    "fullwidth": "^1.2.0",
+    "moment-timezone": "^0.5.21",
+    "redis": "^2.8.0",
+    "rss-parser": "^3.4.3",
+    "shell-exec": "^1.0.2",
+    "superagent": "^3.8.2",
+    "superb": "^3.0.0",
+    "twitter": "^1.7.1",
+    "unique-random-array": "^1.0.0"
+  }
+}
