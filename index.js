@@ -260,13 +260,13 @@ function parse(msg) {
     // Vinny staging
   } else {
     let match = m.match(
-      /\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky/
+      /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
     if (match) {
       msg.reply(
         "you used a word that's on our blocklist. This incident has been reported."
       );
-      if (match[1] != "stinky") {
+      if (match[1] !== "stinky") {
         dclient.channels
           .get("481658230049603604")
           .send(
