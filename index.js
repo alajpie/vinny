@@ -393,10 +393,10 @@ function parse(msg) {
           msg.channel.send("Couldn't find that role :/");
         } else {
           if (role) {
-            const totvoters = role.members.size;
+            const neededVoters = Math.floor(role.members.size / 2 + 1);
             threshold = match[1]
-              ? Math.max(Math.min(match[1], totvoters), 1)
-              : totvoters;
+              ? Math.max(Math.min(match[1], neededVoters), 1)
+              : neededVoters;
             type = match[2];
           } else if (match[1]) {
             threshold = Math.max(match[1], 1);
@@ -411,7 +411,6 @@ function parse(msg) {
               .multi()
               .set("vote-type", type)
               .set("vote-threshold", threshold)
-              .set("vote-total", 0)
               .set("vote-for", 0)
               .set("vote-against", 0)
               .del("vote-voters")
@@ -448,7 +447,6 @@ function parse(msg) {
               .multi()
               .del("vote-type")
               .del("vote-threshold")
-              .del("vote-total")
               .del("vote-for")
               .del("vote-against")
               .del("vote-voters")
@@ -458,23 +456,14 @@ function parse(msg) {
         msg.channel.send("no");
       }
     }
-    async function voteDoneCheck(x) {
+    async function voteDoneCheck() {
       const results = await rclient
         .multi()
         .get("vote-for")
         .get("vote-against")
         .get("vote-threshold")
         .execAsync();
-      if (x[0] > results[2]) {
-        msg.channel.send(
-          "Votes > threshold, THIS SHOULD NEVER HAPPEN <@144880429533626368>" // @Marble#2132
-        );
-      }
-      if (
-        x[0] === results[2] ||
-        results[0] > results[2] / 2 ||
-        results[1] > results[2] / 2
-      ) {
+      if (results[0] == results[2] || results[1] == results[2]) {
         const emoji =
           results[0] === results[1]
             ? ":question:"
@@ -488,7 +477,6 @@ function parse(msg) {
           .multi()
           .del("vote-type")
           .del("vote-threshold")
-          .del("vote-total")
           .del("vote-for")
           .del("vote-against")
           .del("vote-voters")
@@ -526,7 +514,6 @@ function parse(msg) {
           }[match[1]];
           rclient
             .multi()
-            .incr("vote-total")
             .incr(direction ? "vote-for" : "vote-against")
             .sadd("vote-voters", msg.author.id)
             .execAsync()
