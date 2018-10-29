@@ -42,7 +42,8 @@ const tzdata = {
   "358050835533660161": "America/New_York",
   "331850934277767178": "America/New_York",
   "219242476152553472": "America/Los_Angeles",
-  "163150738808111108": "America/Chicago"
+  "163150738808111108": "America/Chicago",
+  "198941027313123328": "America/New_York"
 };
 
 const channels = [
