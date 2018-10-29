@@ -671,6 +671,9 @@ function parse(msg) {
   if (m.includes(";jouvert") || m.includes(";j'ouvert")) {
     msg.channel.send("https://youtu.be/PkLPFi4fmug");
   }
+  if (m.includes(";repo")) {
+    msg.channel.send("https://gitlab.com/k2l8m11n2/vinny/");
+  }
   if (m.includes(";uptime")) {
     msg.channel.send(
       moment
@@ -703,6 +706,7 @@ function parse(msg) {
         ;shrug - ¯\\_(ツ)_/¯
         ;internationale - *The Internationale*
         ;j'ouvert - J'OUVERT by BROCKHAMPTON
+        ;repo - link to the bot's GitLab repo
         ;uptime - bot's uptime, in French
         ;help - what you just got.`);
     } else {
