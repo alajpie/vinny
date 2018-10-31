@@ -320,7 +320,6 @@ function parse(msg) {
 
     const stripped = m.replace(/[^0-9a-z]/gi, "");
     if (msg.channel.id === r5kChannel) {
-      // r5k
       rclient.sismemberAsync("r5k", stripped).then(seen => {
         if (seen) {
           msg.delete(500);
