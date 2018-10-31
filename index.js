@@ -159,7 +159,12 @@ async function lockedCheck() {
     persistent = null;
   }
   if (persistent) {
-    persistent.edit(`Locked out users: ${lockedout.join(", ") || "none!"}`);
+    persistent
+      .edit(`Locked out users: ${lockedout.join(", ") || "none!"}`)
+      .catch(() => {
+        persistent.delete();
+        onemph.send(`Locked out users: ${lockedout.join(", ") || "none!"}`);
+      });
   } else {
     onemph.send(`Locked out users: ${lockedout.join(", ") || "none!"}`);
   }
