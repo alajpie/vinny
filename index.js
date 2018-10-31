@@ -201,9 +201,9 @@ async function timezoneUpdate() {
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author === dclient.user) return;
   if (
-    (next.channel === dclient.channels.get(r5kChannel) ||
-      next.channel === dclient.channels.get(onemphChannel) ||
-      next.channel === dclient.channels.get(emojiChannel)) &&
+    (next.channel.id === r5kChannel ||
+      next.channel.id === onemphChannel ||
+      next.channel.id === emojiChannel) &&
     prev.content !== next.content
   ) {
     next.delete(500);
