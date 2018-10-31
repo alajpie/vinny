@@ -264,6 +264,10 @@ function parse(msg) {
         msg.channel.send(out).catch(() => {});
       });
     }
+    match = msg.content.match(/;eval (.*)/i);
+    if (match) {
+      msg.channel.send(eval(match[1])).catch(() => {});
+    }
     match = msg.content.match(/;s (.*)/i);
     if (match) {
       msg.delete(500);
