@@ -33,6 +33,7 @@ const emojiChannel = "505844487642284044";
 const deptOfBotAffairsChannel = "472118062825472011";
 const autoYtChannel = "487747607704240139";
 const botTestingChamberChannel = "499351756606668801";
+const edgyMemesChannel = "490036639473729547";
 
 const tzdata = {
   "144880429533626368": "Europe/Warsaw",
@@ -271,7 +272,7 @@ function parse(msg) {
       msg.reply(
         "you used a word that's on our blocklist. This incident has been reported."
       );
-      if (match[1] !== "stinky") {
+      if (match[1] !== "stinky" && msg.channel.id !== edgyMemesChannel) {
         dclient.channels
           .get("481658230049603604") // #mod-lounge
           .send(
