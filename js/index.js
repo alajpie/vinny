@@ -389,43 +389,42 @@ function parse(msg) {
         msg.channel.send("no");
       }
     }
-    match = m.match(/;mkvote ?(\d+)? ?(.*)/);
+    match = m.match(/;mkvote (?:(\d+)? (.+)|(\d+)|(.+))/);
     if (match) {
       if (msg.member.roles.has(modsRole)) {
-        const role = msg.guild.roles.find(
-          x => x.name.toLowerCase() === match[2].trim()
-        );
-        let threshold;
-        let type;
-        if (match[2] && !role) {
-          msg.channel.send("Couldn't find that role :/");
-        } else {
-          if (role) {
-            const neededVoters = Math.floor(role.members.size / 2 + 1);
-            threshold = match[1]
-              ? Math.max(Math.min(match[1], neededVoters), 1)
-              : neededVoters;
-            type = match[2];
-          } else if (match[1]) {
-            threshold = Math.max(match[1], 1);
-            type = "";
+        let type = match[2] || match[4] || "trusted <3";
+        type = type === "everyone" ? "" : type;
+        type = type === "trusted" ? "trusted <3" : type;
+        let threshold = match[1] || match[3] || 0;
+        let role;
+        let invalid = false;
+        if (type) {
+          role = msg.guild.roles.find(
+            x => x.name.toLowerCase() === type.trim()
+          );
+          if (!role) {
+            msg.channel.send("Couldn't find that role :/");
+            invalid = true;
           }
-          type = type.toLowerCase();
-          if (threshold) {
-            msg.channel.send(
-              `Starting ${type ? type + " " : ""}vote (${threshold} required).`
-            );
-            rclient
-              .multi()
-              .set("vote-type", type)
-              .set("vote-threshold", threshold)
-              .set("vote-for", 0)
-              .set("vote-against", 0)
-              .del("vote-voters")
-              .exec();
-          } else {
-            msg.channel.send("You need to specify a threshold or a role.");
-          }
+        }
+        if (role) {
+          threshold = threshold
+            ? Math.min(threshold, role.members.size)
+            : Math.floor(role.members.size / 2 + 1);
+        }
+        threshold = Math.max(threshold, 1);
+        if (!invalid) {
+          msg.channel.send(
+            `Starting ${type ? type + " " : ""}vote (${threshold} required).`
+          );
+          rclient
+            .multi()
+            .set("vote-type", type)
+            .set("vote-threshold", threshold)
+            .set("vote-for", 0)
+            .set("vote-against", 0)
+            .del("vote-voters")
+            .exec();
         }
       } else {
         msg.channel.send("no");
@@ -534,6 +533,7 @@ function parse(msg) {
         .get("vote-for")
         .get("vote-against")
         .get("vote-threshold")
+        .get("vote-type")
         .execAsync()
         .then(results => {
           if (results[2]) {
@@ -544,9 +544,9 @@ function parse(msg) {
                   ? ":thumbsup:"
                   : ":thumbsdown:";
             msg.channel.send(
-              `Current vote results: ${results[0]} for, ${
-                results[1]
-              } against (${results[2]} required). (${emoji})`
+              `Current ${results[3] ? results[3] + " " : ""}vote results: ${
+                results[0]
+              } for, ${results[1]} against (${results[2]} required). (${emoji})`
             );
           } else {
             msg.channel.send("No vote currently in progress.");
