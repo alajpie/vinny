@@ -151,11 +151,8 @@ async function lockedCheck() {
   const messagesPromise = onemph.fetchMessages({ limit: 10 });
   const lockedout = await lockedoutPromise;
   const messages = await messagesPromise;
-  let persistent = messages
-    .array()
-    .reverse()
-    .find(x => x.author.id === dclient.user.id);
-  if (persistent && messages.array().reverse()[0].id !== persistent.id) {
+  let persistent = messages.array().find(x => x.author.id === dclient.user.id);
+  if (persistent && messages.array()[0].id !== persistent.id) {
     persistent.delete();
     persistent = null;
   }
@@ -188,7 +185,6 @@ async function timezoneUpdate() {
     .fetchMessages({ limit: 10 });
   messages
     .array()
-    .reverse()
     .find(x => x.author.id === dclient.user.id)
     .edit(out);
 }
