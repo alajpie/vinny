@@ -201,12 +201,21 @@ async function timezoneUpdate() {
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author === dclient.user) return;
   if (
-    (next.channel.id === r5kChannel ||
-      next.channel.id === onemphChannel ||
-      next.channel.id === emojiChannel) &&
+    (next.channel.id === onemphChannel || next.channel.id === emojiChannel) &&
     prev.content !== next.content
   ) {
     next.delete(500);
+  } else if (next.channel.id === r5kChannel) {
+    const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
+    rclient.sismemberAsync("r5k", stripped).then(seen => {
+      if (seen) {
+        next.delete(500);
+        dclient.channels
+          .get("497883396203216917") // #r5k-fails
+          .send(`${next.author.tag}: ${next.content}`);
+      }
+    });
+    rclient.sadd("r5k", stripped);
   }
 });
 
