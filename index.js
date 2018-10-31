@@ -101,14 +101,10 @@ dclient.on("ready", () => {
   }, 5 * 60 * 1000);
   setInterval(() => {
     // maintenance timer
-    lockedCheck(false);
+    lockedCheck();
   }, 10 * 1000);
-  rclient.getAsync("1mph-persistent").then(x => {
-    if (x !== dclient.channels.get(onemphChannel).lastMessageID) {
-      lockedCheck(true);
-    }
-    dclient.channels.get(botTestingChamberChannel).startTyping();
-  });
+  lockedCheck();
+  dclient.channels.get(botTestingChamberChannel).startTyping();
 });
 
 dclient.on("error", () => {
@@ -142,10 +138,9 @@ async function checkChannel(id) {
   }
 }
 
-async function lockedCheck(refresh) {
-  const keysPromise = rclient.keysAsync("1mph-lock/*");
-  const persistentPromise = rclient.getAsync("1mph-persistent");
-  const keys = await keysPromise;
+async function lockedCheck() {
+  const onemph = dclient.channels.get(onemphChannel);
+  const keys = await rclient.keysAsync("1mph-lock/*");
   const lockedoutPromise = Promise.all(
     keys.map(async x => {
       const ttl = await rclient.pttlAsync(x);
@@ -153,27 +148,23 @@ async function lockedCheck(refresh) {
       return `${u.tag} (${Math.ceil(ttl / (60 * 1000))} min)`;
     })
   );
-  let persistent = undefined;
-  try {
-    persistent = await persistentPromise;
-    persistent = await dclient.channels
-      .get(onemphChannel)
-      .fetchMessage(persistent);
-  } catch (e) {
+  const messagesPromise = dclient.channels
+    .get(onemphChannel)
+    .fetchMessages({ limit: 10 });
+  const lockedout = await lockedoutPromise;
+  const messages = await messagesPromise;
+  let persistent = messages
+    .array()
+    .reverse()
+    .find(x => x.author.id === dclient.user.id);
+  if (persistent && messages.array().reverse()[0].id !== persistent.id) {
+    persistent.delete();
     persistent = null;
   }
-  const lockedout = await lockedoutPromise;
-  if (persistent && !refresh) {
+  if (persistent) {
     persistent.edit(`Locked out users: ${lockedout.join(", ") || "none!"}`);
   } else {
-    if (persistent && refresh) {
-      persistent.delete();
-      await rclient.delAsync("1mph-persistent");
-    }
-    persistent = await dclient.channels
-      .get(onemphChannel)
-      .send(`Locked out users: ${lockedout.join(", ") || "none!"}`);
-    rclient.set("1mph-persistent", persistent.id);
+    onemph.send(`Locked out users: ${lockedout.join(", ") || "none!"}`);
   }
 }
 
@@ -305,7 +296,7 @@ function parse(msg) {
           rclient
             .setexAsync(`1mph-lock/${msg.author.id}`, 60 * 60, true)
             .then(() => {
-              lockedCheck(true);
+              lockedCheck();
             });
         }
       });
