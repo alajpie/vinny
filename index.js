@@ -676,6 +676,9 @@ function parse(msg) {
   if (m.includes(";repo")) {
     msg.channel.send("https://gitlab.com/k2l8m11n2/vinny/");
   }
+  if (m.includes(";zwsp")) {
+    msg.channel.send("​");
+  }
   if (m.includes(";uptime")) {
     msg.channel.send(
       moment
@@ -710,6 +713,7 @@ function parse(msg) {
         ;j'ouvert - J'OUVERT by BROCKHAMPTON
         ;repo - link to the bot's GitLab repo
         ;uptime - bot's uptime, in French
+        ;zwsp - send a handy zero-width space
         ;help - what you just got.`);
     } else {
       msg.channel.send(`Try that in <#${deptOfBotAffairsChannel}>.`);
