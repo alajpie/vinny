@@ -185,8 +185,14 @@ async function timezoneUpdate() {
   tzdataProcessed.forEach(x => {
     out += `\n\`${x[0]} (${x[1]})\` <@${x[2]}>`;
   });
-  const chan = dclient.channels.get(tzdataChannel);
-  (await chan.fetchMessage(chan.lastMessageID)).edit(out);
+  const messages = await dclient.channels
+    .get(tzdataChannel)
+    .fetchMessages({ limit: 10 });
+  messages
+    .array()
+    .reverse()
+    .find(x => x.author.id === dclient.user.id)
+    .edit(out);
 }
 
 dclient.on("messageUpdate", (prev, next) => {
