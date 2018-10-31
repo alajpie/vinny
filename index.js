@@ -148,9 +148,7 @@ async function lockedCheck() {
       return `${u.tag} (${Math.ceil(ttl / (60 * 1000))} min)`;
     })
   );
-  const messagesPromise = dclient.channels
-    .get(onemphChannel)
-    .fetchMessages({ limit: 10 });
+  const messagesPromise = onemph.fetchMessages({ limit: 10 });
   const lockedout = await lockedoutPromise;
   const messages = await messagesPromise;
   let persistent = messages
@@ -294,7 +292,7 @@ function parse(msg) {
       msg.delete();
       return;
     }
-    if (msg.channel == dclient.channels.get(onemphChannel)) {
+    if (msg.channel.id === onemphChannel) {
       rclient.existsAsync(`1mph-lock/${msg.author.id}`).then(exists => {
         if (exists) {
           msg.delete(500);
@@ -308,7 +306,7 @@ function parse(msg) {
       });
       return;
     }
-    if (msg.channel == dclient.channels.get(emojiChannel)) {
+    if (msg.channel.id === emojiChannel) {
       let noemo = msg.content.replace(
         /\ud83c[\udde6-\uddff]/,
         "regional indicator"
@@ -325,7 +323,7 @@ function parse(msg) {
     }
 
     const stripped = m.replace(/[^0-9a-z]/gi, "");
-    if (msg.channel === dclient.channels.get(r5kChannel)) {
+    if (msg.channel.id === r5kChannel) {
       // r5k
       rclient.sismemberAsync("r5k", stripped).then(seen => {
         if (seen) {
@@ -696,8 +694,8 @@ function parse(msg) {
   }
   if (m.includes(";help")) {
     if (
-      msg.channel == dclient.channels.get(deptOfBotAffairsChannel) ||
-      msg.channel == dclient.channels.get(botTestingChamberChannel)
+      msg.channel.id === deptOfBotAffairsChannel ||
+      msg.channel.id === botTestingChamberChannel
     ) {
       msg.channel.send(`Here are the available commands:
         ;vote - check the status of the current vote
