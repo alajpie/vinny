@@ -35,6 +35,8 @@ const autoYtChannel = "487747607704240139";
 const botTestingChamberChannel = "499351756606668801";
 const edgyMemesChannel = "490036639473729547";
 
+const modsRole = "472080504460541952";
+
 const tzdata = {
   "144880429533626368": "Europe/Warsaw",
   "174183329308999681": "Europe/Riga",
@@ -282,7 +284,7 @@ function parse(msg) {
           .send(
             `${msg.author.tag} said: \`${msg.content}\` in #${
               msg.channel.name
-            } <@&472080504460541952>` // @mods
+            } <@&${modsRole}>`
           );
       }
       msg.delete();
@@ -346,8 +348,7 @@ function parse(msg) {
       );
     }
     if (m.includes(";ytlist")) {
-      if (msg.member.roles.has("472080504460541952")) {
-        // mods
+      if (msg.member.roles.has(modsRole)) {
         Promise.all(
           channels.map(x =>
             msg.channel.send(`https://www.youtube.com/channel/${x}`)
@@ -360,8 +361,7 @@ function parse(msg) {
     match = msg.content.match(/;mkrole (.*)/i);
     // 'msg' not 'm' to preserve case, 'i' for case insensitive 'mkrole' match
     if (match) {
-      if (msg.member.roles.has("472080504460541952")) {
-        // mods
+      if (msg.member.roles.has(modsRole)) {
         msg.guild.createRole({ name: match[1] });
         msg.channel.send("Created!");
       } else {
@@ -370,8 +370,7 @@ function parse(msg) {
     }
     match = m.match(/;rmrole (.*)/);
     if (match) {
-      if (msg.member.roles.has("472080504460541952")) {
-        // mods
+      if (msg.member.roles.has(modsRole)) {
         const role = msg.guild.roles.find(
           x => x.name.toLowerCase() === match[1]
         );
@@ -387,8 +386,7 @@ function parse(msg) {
     }
     match = m.match(/;mkvote ?(\d+)? ?(.*)/);
     if (match) {
-      if (msg.member.roles.has("472080504460541952")) {
-        // mods
+      if (msg.member.roles.has(modsRole)) {
         const role = msg.guild.roles.find(
           x => x.name.toLowerCase() === match[2].trim()
         );
@@ -429,8 +427,7 @@ function parse(msg) {
       }
     }
     if (m.includes(";rmvote")) {
-      if (msg.member.roles.has("472080504460541952")) {
-        // mods
+      if (msg.member.roles.has(modsRole)) {
         rclient
           .multi()
           .get("vote-for")
