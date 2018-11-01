@@ -37,6 +37,8 @@ const edgyMemesChannel = "490036639473729547";
 
 const modsRole = "472080504460541952";
 
+const lggGuild = "472079800744411136";
+
 const tzdata = {
   "144880429533626368": "Europe/Warsaw",
   "174183329308999681": "Europe/Riga",
@@ -101,11 +103,13 @@ dclient.on("ready", () => {
     // youtube timer
     channels.forEach(checkChannel);
   }, 5 * 60 * 1000);
-  setInterval(() => {
+  const mnt = () => {
     // maintenance timer
+    inviteCheck();
     lockedCheck();
-  }, 10 * 1000);
-  lockedCheck();
+    setTimeout(mnt, 10 * 1000);
+  };
+  mnt();
   dclient.channels.get(botTestingChamberChannel).startTyping();
 });
 
@@ -196,6 +200,36 @@ async function timezoneUpdate() {
     .edit(out);
 }
 
+async function inviteCheck() {
+  const invites = await dclient.guilds.get(lggGuild).fetchInvites();
+  lock.acquire("invite", async () => {
+    await rclient.delAsync("invites");
+    invites.array().forEach(async x => {
+      if (x.maxUses !== 1) {
+        x.inviter.send("Only single-use invites are allowed.");
+        x.delete();
+      } else {
+        await rclient.rpushAsync("invites", x.inviter.id);
+      }
+    });
+  });
+}
+
+dclient.on("guildMemberAdd", async member => {
+  const invites = await dclient.guilds.get(lggGuild).fetchInvites();
+  lock.acquire("invite", async () => {
+    await Promise.all(
+      invites
+        .array()
+        .map(async x => rclient.lremAsync("invites", 1, x.inviter.id))
+    );
+    const inviter = await rclient.lpopAsync("invites");
+    dclient.channels
+      .get("472081086478942228") // #welcome
+      .send(`Invited by <@${inviter}>.`);
+  });
+});
+
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author === dclient.user) return;
   if (prev.content !== next.content) {
@@ -218,7 +252,7 @@ dclient.on("messageUpdate", (prev, next) => {
 
 dclient.on("guildMemberUpdate", (prev, next) => {
   if (
-    next.guild.id === "472079800744411136" && // LGG
+    next.guild.id === lggGuild &&
     next.roles.has("499907364485464074") && // @nick-museum
     prev.nickname !== next.nickname
   ) {
