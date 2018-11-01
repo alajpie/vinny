@@ -246,10 +246,10 @@ dclient.on("guildMemberAdd", async member => {
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author === dclient.user) return;
   if (prev.content !== next.content) {
+    const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
     if (next.channel.id === onemphChannel || next.channel.id === emojiChannel) {
       next.delete(500);
     } else if (next.channel.id === r5kChannel) {
-      const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
       rclient.sismemberAsync("r5k", stripped).then(seen => {
         if (seen) {
           next.delete(500);
