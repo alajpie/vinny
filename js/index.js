@@ -236,10 +236,11 @@ dclient.on("guildMemberAdd", async member => {
         .array()
         .map(async x => rclient.lremAsync("invites", 1, x.inviter.id))
     );
-    const inviter = await rclient.lpopAsync("invites");
-    dclient.channels
-      .get("472081086478942228") // #welcome
-      .send(`Invited by <@${inviter}>.`);
+    await rclient.lrangeAsync("invites", 0, -1).forEach(inviter => {
+      dclient.channels
+        .get("472081086478942228") // #welcome
+        .send(`Invited by <@${inviter}>.`);
+    });
   });
 });
 
