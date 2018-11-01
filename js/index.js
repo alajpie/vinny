@@ -207,7 +207,18 @@ async function inviteCheck() {
     await Promise.all(
       invites.array().map(async x => {
         if (x.maxUses !== 1) {
-          x.inviter.send("Only single-use invites are allowed.");
+          rclient
+            .existsAsync(`invite-message-throttle/${x.inviter.id}`)
+            .then(throttled => {
+              if (!throttled) {
+                x.inviter.send("Only single-use invites are allowed.");
+                rclient.setex(
+                  `invite-message-throttle/${x.inviter.id}`,
+                  60,
+                  true
+                );
+              }
+            });
           return x.delete();
         } else {
           return rclient.rpushAsync("invites", x.inviter.id);
