@@ -204,14 +204,16 @@ async function inviteCheck() {
   const invites = await dclient.guilds.get(lggGuild).fetchInvites();
   lock.acquire("invite", async () => {
     await rclient.delAsync("invites");
-    invites.array().forEach(async x => {
-      if (x.maxUses !== 1) {
-        x.inviter.send("Only single-use invites are allowed.");
-        x.delete();
-      } else {
-        await rclient.rpushAsync("invites", x.inviter.id);
-      }
-    });
+    await Promise.all(
+      invites.array().map(async x => {
+        if (x.maxUses !== 1) {
+          x.inviter.send("Only single-use invites are allowed.");
+          return x.delete();
+        } else {
+          return rclient.rpushAsync("invites", x.inviter.id);
+        }
+      })
+    );
   });
 }
 
