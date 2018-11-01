@@ -258,8 +258,8 @@ dclient.on("messageUpdate", (prev, next) => {
             .send(`${next.author.tag}: ${next.content}`);
         }
       });
-      rclient.sadd("r5k", stripped);
     }
+    rclient.sadd("r5k", stripped);
   }
 });
 
