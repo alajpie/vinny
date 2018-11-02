@@ -326,11 +326,11 @@ function parse(msg) {
     let match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
-    if (match) {
+    if (match && msg.channel.id !== edgyMemesChannel) {
       msg.reply(
         "you used a word that's on our blocklist. This incident has been reported."
       );
-      if (match[1] !== "stinky" && msg.channel.id !== edgyMemesChannel) {
+      if (match[1] !== "stinky") {
         dclient.channels
           .get("481658230049603604") // #mod-lounge
           .send(
