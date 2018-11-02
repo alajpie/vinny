@@ -469,6 +469,7 @@ function parse(msg) {
             .multi()
             .set("vote-type", type)
             .set("vote-threshold", threshold)
+            .set("vote-total-voters", role ? role.members.size : -1)
             .set("vote-for", 0)
             .set("vote-against", 0)
             .del("vote-voters")
@@ -501,6 +502,7 @@ function parse(msg) {
               .multi()
               .del("vote-type")
               .del("vote-threshold")
+              .del("vote-total-voters")
               .del("vote-for")
               .del("vote-against")
               .del("vote-voters")
@@ -516,8 +518,13 @@ function parse(msg) {
         .get("vote-for")
         .get("vote-against")
         .get("vote-threshold")
+        .get("vote-total-voters")
         .execAsync();
-      if (results[0] == results[2] || results[1] == results[2]) {
+      if (
+        results[0] == results[2] ||
+        results[1] == results[2] ||
+        results[0] + results[1] >= results[3]
+      ) {
         const emoji =
           results[0] === results[1]
             ? ":question:"
@@ -531,6 +538,7 @@ function parse(msg) {
           .multi()
           .del("vote-type")
           .del("vote-threshold")
+          .del("vote-total-voters")
           .del("vote-for")
           .del("vote-against")
           .del("vote-voters")
