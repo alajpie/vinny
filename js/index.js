@@ -716,6 +716,30 @@ function parse(msg) {
         .join("\u200b")
     );
   }
+  match = msg.content.match(/;tex (.*)/i);
+  if (match) {
+    msg.channel.send("", {
+      files: [
+        new Discord.Attachment(
+          "https://latex.codecogs.com/png.latex?" +
+            encodeURI("\\huge \\dpi{500} \\color{white}" + match[1]),
+          "hello_there_mobile_user.png"
+        )
+      ]
+    });
+  }
+  match = msg.content.match(/;whitex (.*)/i);
+  if (match) {
+    msg.channel.send("", {
+      files: [
+        new Discord.Attachment(
+          "https://latex.codecogs.com/png.latex?" +
+            encodeURI("\\bg_white \\huge \\dpi{500}" + match[1]),
+          "hello_there_mobile_user.png"
+        )
+      ]
+    });
+  }
   if (m.includes(";dad")) {
     request
       .get("https://icanhazdadjoke.com")
@@ -767,6 +791,8 @@ function parse(msg) {
         ;pooraes <msg> - a e s t h i c i z e  a message, poorly
         ;clap <msg> - clap:clap:a:clap:message:clap:out
         ;emoji <msg> - :regional_indicator_y:​:regional_indicator_o:​:regional_indicator_u:​:regional_indicator_r:​  ​:regional_indicator_m:​:regional_indicator_e:​:regional_indicator_s:​:regional_indicator_s:​:regional_indicator_a:​:regional_indicator_g:​:regional_indicator_e:​  ​:regional_indicator_i:​:regional_indicator_n:​  ​:regional_indicator_r:​:regional_indicator_e:​:regional_indicator_g:​:regional_indicator_i:​:regional_indicator_o:​:regional_indicator_n:​:regional_indicator_a:​:regional_indicator_l:​  ​:regional_indicator_i:​:regional_indicator_n:​:regional_indicator_d:​:regional_indicator_i:​:regional_indicator_c:​:regional_indicator_a:​:regional_indicator_t:​:regional_indicator_o:​:regional_indicator_r:​:regional_indicator_s:
+        ;tex <msg> - turn your \`\\infty\`s into \`∞\`s
+        ;whitex <msg> - same as above, but with extra mercy for light mode users and disregard for aesthetics and taste
         ;dad - a dad joke!
         ;lenny - ( ͡° ͜ʖ ͡°)
         ;shrug - ¯\\_(ツ)_/¯
