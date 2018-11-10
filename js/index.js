@@ -716,25 +716,20 @@ function parse(msg) {
         .join("\u200b")
     );
   }
-  match = msg.content.match(/;tex (.*)/i);
+  match = msg.content.match(/;(whi)?tex (.*)/i);
   if (match) {
+    if (match[1]) {
+      // ;whitex
+      var settings = "\\bg_white \\huge \\dpi{500}";
+    } else {
+      // ;tex
+      var settings = "\\huge \\dpi{500} \\color{white}";
+    }
     msg.channel.send("", {
       files: [
         new Discord.Attachment(
           "https://latex.codecogs.com/png.latex?" +
-            encodeURI("\\huge \\dpi{500} \\color{white}" + match[1]),
-          "hello_there_mobile_user.png"
-        )
-      ]
-    });
-  }
-  match = msg.content.match(/;whitex (.*)/i);
-  if (match) {
-    msg.channel.send("", {
-      files: [
-        new Discord.Attachment(
-          "https://latex.codecogs.com/png.latex?" +
-            encodeURI("\\bg_white \\huge \\dpi{500}" + match[1]),
+            encodeURI(settings + " " + match[2]),
           "hello_there_mobile_user.png"
         )
       ]
