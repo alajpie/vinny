@@ -1,7 +1,6 @@
 require("dotenv").config();
 const Discord = require("discord.js");
 const superb = require("superb");
-const uniqueRandomArray = require("unique-random-array");
 const fullwidth = require("fullwidth").default;
 const request = require("superagent");
 const moment = require("moment-timezone");
