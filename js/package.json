@@ -11,7 +11,6 @@
     "shell-exec": "^1.0.2",
     "superagent": "^3.8.2",
     "superb": "^3.0.0",
-    "twitter": "^1.7.1",
-    "unique-random-array": "^1.0.0"
+    "twitter": "^1.7.1"
   }
 }
