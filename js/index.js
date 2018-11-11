@@ -245,23 +245,22 @@ dclient.on("guildMemberAdd", async member => {
 });
 
 dclient.on("messageUpdate", (prev, next) => {
-  if (next.author === dclient.user) return;
-  if (prev.content !== next.content) {
-    const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
-    if (next.channel.id === onemphChannel || next.channel.id === emojiChannel) {
-      next.delete(500);
-    } else if (next.channel.id === r5kChannel) {
-      rclient.sismemberAsync("r5k", stripped).then(seen => {
-        if (seen) {
-          next.delete(500);
-          dclient.channels
-            .get("497883396203216917") // #r5k-fails
-            .send(`${next.author.tag}: ${next.content}`);
-        }
-      });
-    }
-    rclient.sadd("r5k", stripped);
+  if (next.author.id === dclient.user.id) return;
+  if (prev.content === next.content) return;
+  const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
+  if (next.channel.id === onemphChannel || next.channel.id === emojiChannel) {
+    next.delete(500);
+  } else if (next.channel.id === r5kChannel) {
+    rclient.sismemberAsync("r5k", stripped).then(seen => {
+      if (seen) {
+        next.delete(500);
+        dclient.channels
+          .get("497883396203216917") // #r5k-fails
+          .send(`${next.author.tag}: ${next.content}`);
+      }
+    });
   }
+  rclient.sadd("r5k", stripped);
 });
 
 dclient.on("guildMemberUpdate", (prev, next) => {
