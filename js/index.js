@@ -370,7 +370,6 @@ function parse(msg) {
       }
       return;
     }
-
     const stripped = m.replace(/[^0-9a-z]/gi, "");
     if (msg.channel.id === r5kChannel) {
       rclient.sismemberAsync("r5k", stripped).then(seen => {
@@ -755,7 +754,7 @@ function parse(msg) {
     msg.channel.send("https://gitlab.com/k2l8m11n2/vinny/");
   }
   if (m.includes(";zwsp")) {
-    msg.channel.send("​");
+    msg.channel.send("\u200b");
   }
   if (m.includes(";uptime")) {
     msg.channel.send(
