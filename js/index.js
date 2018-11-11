@@ -190,7 +190,7 @@ async function timezoneUpdate() {
   });
   tzdataProcessed.sort((a, b) => a[1] - b[1]);
   tzdataProcessed.forEach(x => {
-    out += `\n\`${x[0]} (${x[1]})\` <@${x[2]}>`;
+    out += `\n\`${x[0]} (${x[1]})\` ${dclient.users.get(x[2]).tag}`;
   });
   const messages = await dclient.channels
     .get(tzdataChannel)
