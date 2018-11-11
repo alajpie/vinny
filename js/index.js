@@ -276,7 +276,7 @@ dclient.on("guildMemberUpdate", (prev, next) => {
 });
 
 dclient.on("message", msg => {
-  if (msg.content.includes(";ignore")) {
+  if (msg.content.includes(";ignore") && msg.channel.id !== r5kChannel) {
     return;
   }
   if (msg.content.includes(";del")) {
