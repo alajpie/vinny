@@ -6,6 +6,7 @@
     "dotenv": "^6.1.0",
     "fullwidth": "^1.2.0",
     "moment-timezone": "^0.5.21",
+    "pastebin-js": "^0.6.0",
     "redis": "^2.8.0",
     "rss-parser": "^3.4.3",
     "shell-exec": "^1.0.2",
