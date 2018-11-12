@@ -7,6 +7,7 @@ const moment = require("moment-timezone");
 const Twitter = require("twitter");
 const bluebird = require("bluebird");
 const shellExec = require("shell-exec");
+const Pastebin = require("pastebin-js");
 const lock = new (require("async-lock"))();
 const rss = new (require("rss-parser"))();
 
@@ -15,6 +16,11 @@ bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const rclient = redis.createClient();
 
+const pclient = new Pastebin({
+  api_dev_key: process.env.VINNY_PASTEBIN_KEY,
+  api_user_name: process.env.VINNY_PASTEBIN_USER,
+  api_user_password: process.env.VINNY_PASTEBIN_PASS
+});
 const dclient = new Discord.Client();
 const tclient = new Twitter({
   consumer_key: process.env.VINNY_TWITTER_CONSUMER_KEY,
@@ -316,6 +322,44 @@ function parse(msg) {
     if (match) {
       msg.delete(500);
       msg.channel.send(match[1]);
+    }
+    match = msg.content.match(/;images ?(.*)?/i);
+    if (match) {
+      (async () => {
+        const limit = Math.min(match[1] || 10, 5000);
+        if (limit > 250) {
+          msg.channel.send("This might take a while, hang tight!");
+        }
+        const images = [];
+        let b4 = "";
+        while (images.length < limit) {
+          const messagesPromise = msg.channel.fetchMessages({
+            limit: 50,
+            before: b4
+          });
+          const messages = (await messagesPromise).array();
+          if (messages.length === 0) {
+            break;
+          }
+          b4 = messages[messages.length - 1].id;
+          for (var x of messages) {
+            for (const y of x.attachments.array()) {
+              images.push(y.url);
+            }
+          }
+        }
+        const link = await pclient.createPaste(
+          images
+            .reverse()
+            .slice(Math.max(images.length - limit, 1))
+            .join("\n"),
+          "Vinny ;images",
+          "text",
+          1,
+          "1W"
+        );
+        msg.channel.send(`<${link}>`);
+      })();
     }
     if (m.includes(";test")) {
     }
