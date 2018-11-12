@@ -42,7 +42,7 @@ const edgyMemesChannel = "490036639473729547";
 
 const modsRole = "472080504460541952";
 
-const lggGuild = "472079800744411136";
+const cwaGuild = "472079800744411136";
 
 const tzdata = {
   "144880429533626368": "Europe/Warsaw",
@@ -94,11 +94,6 @@ dclient.on("ready", () => {
       type: "WATCHING"
     }
   });
-  // process.on("unhandledRejection", e => {
-  //     dclient.channels
-  //         .get(botTestingChamberChannel)
-  //         .send(e.stack + " <@144880429533626368>"); // @Marble#2132
-  // });
   const tzt = () => {
     // timezone timer
     timezoneUpdate();
@@ -182,7 +177,7 @@ async function lockedCheck() {
 
 async function timezoneUpdate() {
   let out =
-    "Timezones! Message <@144880429533626368> with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself!"; // @Marble#2132
+    "Timezones! Message <@144880429533626368> with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself!"; // @Autoclave#2132
   const tzdataProcessed = [];
   Object.keys(tzdata).forEach(x => {
     let offset = moment.tz.zone(tzdata[x]).utcOffset(moment()) / -60;
@@ -207,7 +202,7 @@ async function timezoneUpdate() {
 }
 
 async function inviteCheck() {
-  const invites = await dclient.guilds.get(lggGuild).fetchInvites();
+  const invites = await dclient.guilds.get(cwaGuild).fetchInvites();
   lock.acquire("invite", async () => {
     await rclient.delAsync("invites");
     await Promise.all(
@@ -235,7 +230,7 @@ async function inviteCheck() {
 }
 
 dclient.on("guildMemberAdd", async member => {
-  const invites = await dclient.guilds.get(lggGuild).fetchInvites();
+  const invites = await dclient.guilds.get(cwaGuild).fetchInvites();
   lock.acquire("invite", async () => {
     await Promise.all(
       invites
@@ -271,7 +266,7 @@ dclient.on("messageUpdate", (prev, next) => {
 
 dclient.on("guildMemberUpdate", (prev, next) => {
   if (
-    next.guild.id === lggGuild &&
+    next.guild.id === cwaGuild &&
     next.roles.has("499907364485464074") && // @nick-museum
     prev.nickname !== next.nickname
   ) {
@@ -306,7 +301,7 @@ function parse(msg) {
   if (msg.author === dclient.user) return;
   const m = msg.content.toLowerCase();
   if (msg.author === dclient.users.get("144880429533626368")) {
-    // Marble#2132
+    // Autoclave#2132
     let match = msg.content.match(/;sh (.*)/i);
     if (match) {
       const exec = require("child_process").exec;
@@ -364,8 +359,7 @@ function parse(msg) {
     if (m.includes(";test")) {
     }
   }
-  if (msg.guild && msg.guild.id === "472079800744411136") {
-    // LGG
+  if (msg.guild && msg.guild.id === cwaGuild) {
     let match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
