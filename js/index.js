@@ -78,7 +78,7 @@ const channels = [
   "UCBa659QWEk1AI4Tg--mrJ2A", // Tom Scott
   "UC8XjmAEDVZSCQjI150cb4QA", // Knowing Better
   "UCsXVk37bltHxD1rDPwtNM8Q", // Kurzgesagt
-  "UCepkun0sH16b-mqxBN22ogA"  // Mexie 
+  "UCepkun0sH16b-mqxBN22ogA" // Mexie
 ]; // hug!
 
 dclient.on("ready", () => {
