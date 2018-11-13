@@ -101,7 +101,6 @@ dclient.on("ready", () => {
   }, 5 * 60 * 1000);
   const mnt = () => {
     // maintenance timer
-    inviteCheck();
     lockedCheck();
     setTimeout(mnt, 10 * 1000);
   };
@@ -195,50 +194,6 @@ async function timezoneUpdate() {
     .find(x => x.author.id === dclient.user.id)
     .edit(out);
 }
-
-async function inviteCheck() {
-  const invites = await dclient.guilds.get(cwaGuild).fetchInvites();
-  lock.acquire("invite", async () => {
-    await rclient.delAsync("invites");
-    await Promise.all(
-      invites.array().map(async x => {
-        if (x.maxUses !== 1) {
-          rclient
-            .existsAsync(`invite-message-throttle/${x.inviter.id}`)
-            .then(throttled => {
-              if (!throttled) {
-                x.inviter.send("Only single-use invites are allowed.");
-                rclient.setex(
-                  `invite-message-throttle/${x.inviter.id}`,
-                  60,
-                  true
-                );
-              }
-            });
-          return x.delete();
-        } else {
-          return rclient.rpushAsync("invites", x.inviter.id);
-        }
-      })
-    );
-  });
-}
-
-dclient.on("guildMemberAdd", async member => {
-  const invites = await dclient.guilds.get(cwaGuild).fetchInvites();
-  lock.acquire("invite", async () => {
-    await Promise.all(
-      invites
-        .array()
-        .map(async x => rclient.lremAsync("invites", 1, x.inviter.id))
-    );
-    await rclient.lrangeAsync("invites", 0, -1).forEach(inviter => {
-      dclient.channels
-        .get("472081086478942228") // #welcome
-        .send(`Invited by <@${inviter}>.`);
-    });
-  });
-});
 
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author.id === dclient.user.id) return;
