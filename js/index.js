@@ -587,7 +587,9 @@ function parse(msg) {
         msg.channel.send("no");
       }
     }
-    match = m.match(/;(yea|aye|nay|yes|no|for|against)\b/);
+    match = m.match(
+      /;(yea|aye|nay|yes|no|for|against|sure|yep|yeah|totally|absolutely|nah|nope|nuh|never)\b/
+    );
     if (match) {
       lock.acquire("vote", async () => {
         const rawDirection = match[1];
@@ -615,7 +617,16 @@ function parse(msg) {
             yes: true,
             no: false,
             for: true,
-            against: false
+            against: false,
+            sure: true,
+            yep: true,
+            yeah: true,
+            totally: true,
+            absolutely: true,
+            nah: false,
+            nope: false,
+            nuh: false,
+            never: false
           }[rawDirection];
           rclient
             .multi()
