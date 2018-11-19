@@ -363,358 +363,353 @@ function parse(msg) {
       })();
     }
   }
-  if (msg.guild) {
-    if (msg.guild.id === tier.mainGuild) {
-      let match = m.match(
-        /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
+  if (msg.guild && msg.guild.id === tier.mainGuild) {
+    let match = m.match(
+      /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
+    );
+    if (match && msg.channel.id !== tier.edgyMemesChannel) {
+      msg.reply(
+        "you used a word that's on our blocklist. This incident has been reported."
       );
-      if (match && msg.channel.id !== tier.edgyMemesChannel) {
-        msg.reply(
-          "you used a word that's on our blocklist. This incident has been reported."
-        );
-        if (match[1] !== "stinky") {
-          dclient.channels
-            .get(tier.modLoungeChannel)
-            .send(
-              `${msg.author.tag} said: \`${msg.content}\` in #${
-                msg.channel.name
-              } <@&${tier.modsRole}>`
-            );
-        }
-        msg.delete();
-        return;
-      }
-      if (msg.channel.id === tier.onemphChannel) {
-        rclient.existsAsync(`1mph-lock/${msg.author.id}`).then(exists => {
-          if (exists) {
-            msg.delete(500);
-          } else {
-            rclient
-              .setexAsync(`1mph-lock/${msg.author.id}`, 60 * 60, true)
-              .then(() => {
-                lockedCheck();
-              });
-          }
-        });
-        return;
-      }
-      if (msg.channel.id === tier.emojiChannel) {
-        let noemo = msg.content.replace(
-          /\ud83c[\udde6-\uddff]/,
-          "regional indicator"
-        );
-        noemo = noemo.replace(emojiRegex, "");
-        noemo = msg.guild.emojis.array().reduce((x, y) => {
-          return x.replace(`<:${y.name}:${y.id}>`, "");
-        }, noemo);
-        noemo = noemo.trim();
-        if (noemo) {
-          msg.delete();
-        }
-        return;
-      }
-      const stripped = m.replace(/[^0-9a-z]/gi, "");
-      if (msg.channel.id === tier.r5kChannel) {
-        rclient.sismemberAsync("r5k", stripped).then(seen => {
-          if (seen) {
-            msg.delete(500);
-            dclient.channels
-              .get(tier.r5kFailsChannel)
-              .send(`${msg.author.tag}: ${msg.content}`);
-          }
-        });
-      }
-      rclient.sadd("r5k", stripped);
-      if (m.includes(";points")) {
-        rclient.zscoreAsync("points", msg.author.id).then(points => {
-          if (points) {
-            msg.channel.send(points);
-          } else {
-            msg.channel.send("0");
-          }
-        });
-      } else {
-        rclient.zincrby(
-          "points",
-          Math.floor(5 + Math.min(m.length / 10, 10)),
-          msg.author.id
-        );
-      }
-      if (m.includes(";ytlist")) {
-        if (msg.member.roles.has(tier.modsRole)) {
-          Promise.all(
-            channels.map(x =>
-              msg.channel.send(`https://www.youtube.com/channel/${x}`)
-            )
-          ).then(msg.channel.send("Done!"));
-        } else {
-          msg.channel.send("no");
-        }
-      }
-      match = msg.content.match(/;mkrole (.*)/i);
-      // 'msg' not 'm' to preserve case, 'i' for case insensitive 'mkrole' match
-      if (match) {
-        if (msg.member.roles.has(tier.modsRole)) {
-          msg.guild.createRole({ name: match[1] });
-          msg.channel.send("Created!");
-        } else {
-          msg.channel.send("no");
-        }
-      }
-      match = m.match(/;rmrole (.*)/);
-      if (match) {
-        if (msg.member.roles.has(tier.modsRole)) {
-          const role = msg.guild.roles.find(
-            x => x.name.toLowerCase() === match[1]
+      if (match[1] !== "stinky") {
+        dclient.channels
+          .get(tier.modLoungeChannel)
+          .send(
+            `${msg.author.tag} said: \`${msg.content}\` in #${
+              msg.channel.name
+            } <@&${tier.modsRole}>`
           );
-          if (role) {
-            role.delete();
-            msg.channel.send("Deleted!");
-          } else {
-            msg.channel.send("Couldn't find that role :/");
-          }
-        } else {
-          msg.channel.send("no");
-        }
       }
-      match = m.match(/;mkvote (?:(\d+)? (.+)|(\d+)|(.+))/);
-      if (match) {
-        if (msg.member.roles.has(tier.modsRole)) {
-          let type = match[2] || match[4] || "trusted <3";
-          type = type === "everyone" ? "" : type;
-          type = type === "trusted" ? "trusted <3" : type;
-          let threshold = match[1] || match[3] || 0;
-          let role;
-          let invalid = false;
-          if (type) {
-            role = msg.guild.roles.find(
-              x => x.name.toLowerCase() === type.trim()
-            );
-            if (!role) {
-              msg.channel.send("Couldn't find that role :/");
-              invalid = true;
-            }
-          }
-          if (role) {
-            threshold = threshold
-              ? Math.min(threshold, role.members.size)
-              : Math.floor(role.members.size / 2 + 1);
-          }
-          threshold = Math.max(threshold, 1);
-          if (!invalid) {
-            msg.channel.send(
-              `Starting ${type ? type + " " : ""}vote (${threshold} required).`
-            );
-            rclient
-              .multi()
-              .set("vote-type", type)
-              .set("vote-threshold", threshold)
-              .set("vote-total-voters", role ? role.members.size : -1)
-              .set("vote-for", 0)
-              .set("vote-against", 0)
-              .del("vote-voters")
-              .exec();
-          }
+      msg.delete();
+      return;
+    }
+    if (msg.channel.id === tier.onemphChannel) {
+      rclient.existsAsync(`1mph-lock/${msg.author.id}`).then(exists => {
+        if (exists) {
+          msg.delete(500);
         } else {
-          msg.channel.send("no");
-        }
-      }
-      if (m.includes(";rmvote")) {
-        if (msg.member.roles.has(tier.modsRole)) {
           rclient
-            .multi()
-            .get("vote-for")
-            .get("vote-against")
-            .execAsync()
-            .then(results => {
-              const emoji =
-                results[0] === results[1]
-                  ? ":question:"
-                  : results[0] > results[1]
-                    ? ":thumbsup:"
-                    : ":thumbsdown:";
-              msg.channel.send(
-                `Vote finished: ${results[0]} for, ${
-                  results[1]
-                } against. ${emoji}`
-              );
-              rclient
-                .multi()
-                .del("vote-type")
-                .del("vote-threshold")
-                .del("vote-total-voters")
-                .del("vote-for")
-                .del("vote-against")
-                .del("vote-voters")
-                .exec();
+            .setexAsync(`1mph-lock/${msg.author.id}`, 60 * 60, true)
+            .then(() => {
+              lockedCheck();
             });
-        } else {
-          msg.channel.send("no");
         }
+      });
+      return;
+    }
+    if (msg.channel.id === tier.emojiChannel) {
+      let noemo = msg.content.replace(
+        /\ud83c[\udde6-\uddff]/,
+        "regional indicator"
+      );
+      noemo = noemo.replace(emojiRegex, "");
+      noemo = msg.guild.emojis.array().reduce((x, y) => {
+        return x.replace(`<:${y.name}:${y.id}>`, "");
+      }, noemo);
+      noemo = noemo.trim();
+      if (noemo) {
+        msg.delete();
       }
-      async function voteDoneCheck() {
-        const results = await rclient
-          .multi()
-          .get("vote-for")
-          .get("vote-against")
-          .get("vote-threshold")
-          .get("vote-total-voters")
-          .execAsync();
-        if (
-          results[0] == results[2] ||
-          results[1] == results[2] ||
-          results[0] + results[1] >= results[3]
-        ) {
-          const emoji =
-            results[0] === results[1]
-              ? ":question:"
-              : results[0] > results[1]
-                ? ":thumbsup:"
-                : ":thumbsdown:";
+      return;
+    }
+    const stripped = m.replace(/[^0-9a-z]/gi, "");
+    if (msg.channel.id === tier.r5kChannel) {
+      rclient.sismemberAsync("r5k", stripped).then(seen => {
+        if (seen) {
+          msg.delete(500);
+          dclient.channels
+            .get(tier.r5kFailsChannel)
+            .send(`${msg.author.tag}: ${msg.content}`);
+        }
+      });
+    }
+    rclient.sadd("r5k", stripped);
+    if (m.includes(";points")) {
+      rclient.zscoreAsync("points", msg.author.id).then(points => {
+        if (points) {
+          msg.channel.send(points);
+        } else {
+          msg.channel.send("0");
+        }
+      });
+    } else {
+      rclient.zincrby(
+        "points",
+        Math.floor(5 + Math.min(m.length / 10, 10)),
+        msg.author.id
+      );
+    }
+    if (m.includes(";ytlist")) {
+      if (msg.member.roles.has(tier.modsRole)) {
+        Promise.all(
+          channels.map(x =>
+            msg.channel.send(`https://www.youtube.com/channel/${x}`)
+          )
+        ).then(msg.channel.send("Done!"));
+      } else {
+        msg.channel.send("no");
+      }
+    }
+    match = msg.content.match(/;mkrole (.*)/i);
+    // 'msg' not 'm' to preserve case, 'i' for case insensitive 'mkrole' match
+    if (match) {
+      if (msg.member.roles.has(tier.modsRole)) {
+        msg.guild.createRole({ name: match[1] });
+        msg.channel.send("Created!");
+      } else {
+        msg.channel.send("no");
+      }
+    }
+    match = m.match(/;rmrole (.*)/);
+    if (match) {
+      if (msg.member.roles.has(tier.modsRole)) {
+        const role = msg.guild.roles.find(
+          x => x.name.toLowerCase() === match[1]
+        );
+        if (role) {
+          role.delete();
+          msg.channel.send("Deleted!");
+        } else {
+          msg.channel.send("Couldn't find that role :/");
+        }
+      } else {
+        msg.channel.send("no");
+      }
+    }
+    match = m.match(/;mkvote (?:(\d+)? (.+)|(\d+)|(.+))/);
+    if (match) {
+      if (msg.member.roles.has(tier.modsRole)) {
+        let type = match[2] || match[4] || "trusted <3";
+        type = type === "everyone" ? "" : type;
+        type = type === "trusted" ? "trusted <3" : type;
+        let threshold = match[1] || match[3] || 0;
+        let role;
+        let invalid = false;
+        if (type) {
+          role = msg.guild.roles.find(
+            x => x.name.toLowerCase() === type.trim()
+          );
+          if (!role) {
+            msg.channel.send("Couldn't find that role :/");
+            invalid = true;
+          }
+        }
+        if (role) {
+          threshold = threshold
+            ? Math.min(threshold, role.members.size)
+            : Math.floor(role.members.size / 2 + 1);
+        }
+        threshold = Math.max(threshold, 1);
+        if (!invalid) {
           msg.channel.send(
-            `Vote finished: ${results[0]} for, ${results[1]} against. ${emoji}`
+            `Starting ${type ? type + " " : ""}vote (${threshold} required).`
           );
           rclient
             .multi()
-            .del("vote-type")
-            .del("vote-threshold")
-            .del("vote-total-voters")
-            .del("vote-for")
-            .del("vote-against")
+            .set("vote-type", type)
+            .set("vote-threshold", threshold)
+            .set("vote-total-voters", role ? role.members.size : -1)
+            .set("vote-for", 0)
+            .set("vote-against", 0)
             .del("vote-voters")
             .exec();
         }
+      } else {
+        msg.channel.send("no");
       }
-      match = m.match(/;(yea|aye|nay|yes|no|for|against)\b/);
-      if (match) {
-        lock.acquire("vote", async () => {
-          const type = await rclient.getAsync("vote-type");
-          const threshold = await rclient.getAsync("vote-threshold");
-          const voted = await rclient.sismemberAsync(
-            "vote-voters",
-            msg.author.id
-          );
-          if (!threshold) {
-            msg.channel.send("No vote currently in progress.");
-          } else if (
-            type &&
-            !msg.member.roles.find(x => x.name.toLowerCase() === type)
-          ) {
-            msg.channel.send("You're not authorized to vote.");
-          } else if (voted) {
-            msg.channel.send("You already voted.");
-          } else {
-            msg.react("☑");
-            const direction = {
-              yea: true,
-              aye: true,
-              nay: false,
-              yes: true,
-              no: false,
-              for: true,
-              against: false
-            }[match[1]];
-            rclient
-              .multi()
-              .incr(direction ? "vote-for" : "vote-against")
-              .sadd("vote-voters", msg.author.id)
-              .execAsync()
-              .then(voteDoneCheck);
-          }
-        });
-      }
-      if (m.includes(";vote")) {
+    }
+    if (m.includes(";rmvote")) {
+      if (msg.member.roles.has(tier.modsRole)) {
         rclient
           .multi()
           .get("vote-for")
           .get("vote-against")
-          .get("vote-threshold")
-          .get("vote-type")
           .execAsync()
           .then(results => {
-            if (results[2]) {
-              const emoji =
-                results[0] === results[1]
-                  ? ":question:"
-                  : results[0] > results[1]
-                    ? ":thumbsup:"
-                    : ":thumbsdown:";
-              msg.channel.send(
-                `Current ${results[3] ? results[3] + " " : ""}vote results: ${
-                  results[0]
-                } for, ${results[1]} against (${
-                  results[2]
-                } required). (${emoji})`
-              );
-            } else {
-              msg.channel.send("No vote currently in progress.");
-            }
+            const emoji =
+              results[0] === results[1]
+                ? ":question:"
+                : results[0] > results[1]
+                  ? ":thumbsup:"
+                  : ":thumbsdown:";
+            msg.channel.send(
+              `Vote finished: ${results[0]} for, ${
+                results[1]
+              } against. ${emoji}`
+            );
+            rclient
+              .multi()
+              .del("vote-type")
+              .del("vote-threshold")
+              .del("vote-total-voters")
+              .del("vote-for")
+              .del("vote-against")
+              .del("vote-voters")
+              .exec();
           });
+      } else {
+        msg.channel.send("no");
       }
-      match = m.match(/;iam(n|not|n't|)? (.*)/);
-      if (match) {
-        const role = msg.guild.roles.find(
-          x => x.name.toLowerCase() === match[2]
+    }
+    async function voteDoneCheck() {
+      const results = await rclient
+        .multi()
+        .get("vote-for")
+        .get("vote-against")
+        .get("vote-threshold")
+        .get("vote-total-voters")
+        .execAsync();
+      if (
+        results[0] == results[2] ||
+        results[1] == results[2] ||
+        results[0] + results[1] >= results[3]
+      ) {
+        const emoji =
+          results[0] === results[1]
+            ? ":question:"
+            : results[0] > results[1]
+              ? ":thumbsup:"
+              : ":thumbsdown:";
+        msg.channel.send(
+          `Vote finished: ${results[0]} for, ${results[1]} against. ${emoji}`
         );
-        if (role) {
-          if (!match[1]) {
-            // add
-            if (msg.member.roles.has(role.id)) {
-              msg.channel.send("You already were :)");
-            } else {
-              msg.member
-                .addRole(role)
-                .then(() => {
-                  msg.channel.send("Added!");
-                })
-                .catch(() => msg.channel.send("no"));
-            }
+        rclient
+          .multi()
+          .del("vote-type")
+          .del("vote-threshold")
+          .del("vote-total-voters")
+          .del("vote-for")
+          .del("vote-against")
+          .del("vote-voters")
+          .exec();
+      }
+    }
+    match = m.match(/;(yea|aye|nay|yes|no|for|against)\b/);
+    if (match) {
+      lock.acquire("vote", async () => {
+        const type = await rclient.getAsync("vote-type");
+        const threshold = await rclient.getAsync("vote-threshold");
+        const voted = await rclient.sismemberAsync(
+          "vote-voters",
+          msg.author.id
+        );
+        if (!threshold) {
+          msg.channel.send("No vote currently in progress.");
+        } else if (
+          type &&
+          !msg.member.roles.find(x => x.name.toLowerCase() === type)
+        ) {
+          msg.channel.send("You're not authorized to vote.");
+        } else if (voted) {
+          msg.channel.send("You already voted.");
+        } else {
+          msg.react("☑");
+          const direction = {
+            yea: true,
+            aye: true,
+            nay: false,
+            yes: true,
+            no: false,
+            for: true,
+            against: false
+          }[match[1]];
+          rclient
+            .multi()
+            .incr(direction ? "vote-for" : "vote-against")
+            .sadd("vote-voters", msg.author.id)
+            .execAsync()
+            .then(voteDoneCheck);
+        }
+      });
+    }
+    if (m.includes(";vote")) {
+      rclient
+        .multi()
+        .get("vote-for")
+        .get("vote-against")
+        .get("vote-threshold")
+        .get("vote-type")
+        .execAsync()
+        .then(results => {
+          if (results[2]) {
+            const emoji =
+              results[0] === results[1]
+                ? ":question:"
+                : results[0] > results[1]
+                  ? ":thumbsup:"
+                  : ":thumbsdown:";
+            msg.channel.send(
+              `Current ${results[3] ? results[3] + " " : ""}vote results: ${
+                results[0]
+              } for, ${results[1]} against (${results[2]} required). (${emoji})`
+            );
           } else {
-            // remove
-            if (!msg.member.roles.has(role.id)) {
-              msg.channel.send("You weren't but now you aren't even more");
-            } else {
-              msg.member
-                .removeRole(role)
-                .then(() => {
-                  msg.channel.send("Removed!");
-                })
-                .catch(() => msg.channel.send("yes you are"));
-            }
+            msg.channel.send("No vote currently in progress.");
+          }
+        });
+    }
+    match = m.match(/;iam(n|not|n't|)? (.*)/);
+    if (match) {
+      const role = msg.guild.roles.find(x => x.name.toLowerCase() === match[2]);
+      if (role) {
+        if (!match[1]) {
+          // add
+          if (msg.member.roles.has(role.id)) {
+            msg.channel.send("You already were :)");
+          } else {
+            msg.member
+              .addRole(role)
+              .then(() => {
+                msg.channel.send("Added!");
+              })
+              .catch(() => msg.channel.send("no"));
           }
         } else {
-          msg.channel.send("Couldn't find that role :/");
+          // remove
+          if (!msg.member.roles.has(role.id)) {
+            msg.channel.send("You weren't but now you aren't even more");
+          } else {
+            msg.member
+              .removeRole(role)
+              .then(() => {
+                msg.channel.send("Removed!");
+              })
+              .catch(() => msg.channel.send("yes you are"));
+          }
         }
+      } else {
+        msg.channel.send("Couldn't find that role :/");
       }
-      if (m.includes(";leaderboard")) {
-        const chunks = (array, chunk_size) =>
-          Array(Math.ceil(array.length / chunk_size))
-            .fill()
-            .map((_, index) => index * chunk_size)
-            .map(begin => array.slice(begin, begin + chunk_size));
-        rclient.zrevrangeAsync("points", 0, 8, "withscores").then(x => {
-          x = chunks(x, 2);
-          let str = "```";
-          x.forEach((y, i) => {
-            const u = dclient.users.get(y[0]);
-            str += `#${i + 1} ${y[1].padStart(7, " ")}  ${
-              u ? u.tag : "<unknown>"
-            }\n`;
-          });
-          msg.channel.send(str + "```");
+    }
+    if (m.includes(";leaderboard")) {
+      const chunks = (array, chunk_size) =>
+        Array(Math.ceil(array.length / chunk_size))
+          .fill()
+          .map((_, index) => index * chunk_size)
+          .map(begin => array.slice(begin, begin + chunk_size));
+      rclient.zrevrangeAsync("points", 0, 8, "withscores").then(x => {
+        x = chunks(x, 2);
+        let str = "```";
+        x.forEach((y, i) => {
+          const u = dclient.users.get(y[0]);
+          str += `#${i + 1} ${y[1].padStart(7, " ")}  ${
+            u ? u.tag : "<unknown>"
+          }\n`;
         });
-      }
-      if (m.includes(";rank")) {
-        rclient.zrevrankAsync("points", msg.author.id).then(rank => {
-          msg.channel.send("#" + (parseInt(rank) + 1));
-        });
-      }
-      if (m.includes(";ytcheck")) {
-        channels.forEach(checkChannel);
-      }
-      if (m.includes(";help")) {
-        if (msg.channel.id === tier.deptOfBotAffairsChannel) {
-          msg.channel.send(`Here are the available commands:
+        msg.channel.send(str + "```");
+      });
+    }
+    if (m.includes(";rank")) {
+      rclient.zrevrankAsync("points", msg.author.id).then(rank => {
+        msg.channel.send("#" + (parseInt(rank) + 1));
+      });
+    }
+    if (m.includes(";ytcheck")) {
+      channels.forEach(checkChannel);
+    }
+    if (m.includes(";help")) {
+      if (msg.channel.id === tier.deptOfBotAffairsChannel) {
+        msg.channel.send(`Here are the available commands:
         ;vote - check the status of the current vote
         ;yes, ;yea, ;aye, ;for - vote *yes*
         ;no, ;nay; ;against - vote *no*
@@ -739,110 +734,109 @@ function parse(msg) {
         ;uptime - bot's uptime, in French
         ;zwsp - send a handy zero-width space
         ;help - what you just got.`);
-        } else {
-          msg.channel.send(`Try that in <#${tier.deptOfBotAffairsChannel}>.`);
-        }
-      }
-    }
-
-    if (m.includes(";ping")) {
-      msg.reply("pong!");
-    }
-    if (m.includes(";love")) {
-      msg.reply(`you're ${superb.random()}!`);
-    }
-    match = msg.content.match(/;aes (.*)/i);
-    if (match) {
-      msg.channel.send(fullwidth(match[1]));
-    }
-    match = msg.content.match(/;mock (.*)/i);
-    if (match) {
-      let mockmsg = "";
-      for (let i = 0; i < match[1].length; i++) {
-        const x = match[1][i];
-        if (x.toLowerCase() === "l") {
-          mockmsg += x.toUpperCase();
-        } else if (x.toLowerCase() === "i") {
-          mockmsg += x.toLowerCase();
-        } else {
-          if (Math.random() < 0.1) {
-            mockmsg += i % 2 ? x.toLowerCase() : x.toUpperCase();
-          } else {
-            mockmsg += i % 2 ? x.toUpperCase() : x.toLowerCase();
-          }
-        }
-      }
-      msg.channel.send(mockmsg);
-    }
-    match = msg.content.match(/;pooraes (.*)/i);
-    if (match) {
-      msg.channel.send(match[1].split("").join(" "));
-    }
-    match = msg.content.match(/;clap (.*)/i);
-    if (match) {
-      msg.channel.send(match[1].split(/\s+/).join("👏"));
-    }
-    match = m.match(/;emoji (.*)/);
-    if (match) {
-      msg.channel.send(
-        match[1]
-          .split("")
-          .filter(x => x.match(/[a-z ]/))
-          .map(x => (x === " " ? "  " : `:regional_indicator_${x}:`))
-          .join("\u200b")
-      );
-    }
-    match = msg.content.match(/;(whi)?tex (.*)/i);
-    if (match) {
-      if (match[1]) {
-        // ;whitex
-        var settings = "\\bg_white \\huge \\dpi{500}";
       } else {
-        // ;tex
-        var settings = "\\huge \\dpi{500} \\color{white}";
+        msg.channel.send(`Try that in <#${tier.deptOfBotAffairsChannel}>.`);
       }
-      msg.channel.send("", {
-        files: [
-          new Discord.Attachment(
-            "https://latex.codecogs.com/png.latex?" +
-              encodeURI(settings + " " + match[2]),
-            "hello_there_mobile_user.png"
-          )
-        ]
-      });
     }
-    if (m.includes(";dad")) {
-      request
-        .get("https://icanhazdadjoke.com")
-        .accept("json")
-        .then(res => msg.channel.send(res.body.joke));
+  }
+
+  if (m.includes(";ping")) {
+    msg.reply("pong!");
+  }
+  if (m.includes(";love")) {
+    msg.reply(`you're ${superb.random()}!`);
+  }
+  match = msg.content.match(/;aes (.*)/i);
+  if (match) {
+    msg.channel.send(fullwidth(match[1]));
+  }
+  match = msg.content.match(/;mock (.*)/i);
+  if (match) {
+    let mockmsg = "";
+    for (let i = 0; i < match[1].length; i++) {
+      const x = match[1][i];
+      if (x.toLowerCase() === "l") {
+        mockmsg += x.toUpperCase();
+      } else if (x.toLowerCase() === "i") {
+        mockmsg += x.toLowerCase();
+      } else {
+        if (Math.random() < 0.1) {
+          mockmsg += i % 2 ? x.toLowerCase() : x.toUpperCase();
+        } else {
+          mockmsg += i % 2 ? x.toUpperCase() : x.toLowerCase();
+        }
+      }
     }
-    if (m.includes(";lenny")) {
-      msg.channel.send("( ͡° ͜ʖ ͡°)");
+    msg.channel.send(mockmsg);
+  }
+  match = msg.content.match(/;pooraes (.*)/i);
+  if (match) {
+    msg.channel.send(match[1].split("").join(" "));
+  }
+  match = msg.content.match(/;clap (.*)/i);
+  if (match) {
+    msg.channel.send(match[1].split(/\s+/).join("👏"));
+  }
+  match = m.match(/;emoji (.*)/);
+  if (match) {
+    msg.channel.send(
+      match[1]
+        .split("")
+        .filter(x => x.match(/[a-z ]/))
+        .map(x => (x === " " ? "  " : `:regional_indicator_${x}:`))
+        .join("\u200b")
+    );
+  }
+  match = msg.content.match(/;(whi)?tex (.*)/i);
+  if (match) {
+    if (match[1]) {
+      // ;whitex
+      var settings = "\\bg_white \\huge \\dpi{500}";
+    } else {
+      // ;tex
+      var settings = "\\huge \\dpi{500} \\color{white}";
     }
-    if (m.includes(";shrug")) {
-      msg.channel.send("¯\\_(ツ)_/¯");
-    }
-    if (m.includes(";internationale")) {
-      msg.channel.send("https://youtu.be/3sh4kz_zhyo");
-    }
-    if (m.includes(";jouvert") || m.includes(";j'ouvert")) {
-      msg.channel.send("https://youtu.be/PkLPFi4fmug");
-    }
-    if (m.includes(";repo")) {
-      msg.channel.send("https://gitlab.com/k2l8m11n2/vinny/");
-    }
-    if (m.includes(";zwsp")) {
-      msg.channel.send("\u200b");
-    }
-    if (m.includes(";uptime")) {
-      msg.channel.send(
-        moment
-          .duration(dclient.uptime)
-          .locale("fr")
-          .humanize()
-      );
-    }
+    msg.channel.send("", {
+      files: [
+        new Discord.Attachment(
+          "https://latex.codecogs.com/png.latex?" +
+            encodeURI(settings + " " + match[2]),
+          "hello_there_mobile_user.png"
+        )
+      ]
+    });
+  }
+  if (m.includes(";dad")) {
+    request
+      .get("https://icanhazdadjoke.com")
+      .accept("json")
+      .then(res => msg.channel.send(res.body.joke));
+  }
+  if (m.includes(";lenny")) {
+    msg.channel.send("( ͡° ͜ʖ ͡°)");
+  }
+  if (m.includes(";shrug")) {
+    msg.channel.send("¯\\_(ツ)_/¯");
+  }
+  if (m.includes(";internationale")) {
+    msg.channel.send("https://youtu.be/3sh4kz_zhyo");
+  }
+  if (m.includes(";jouvert") || m.includes(";j'ouvert")) {
+    msg.channel.send("https://youtu.be/PkLPFi4fmug");
+  }
+  if (m.includes(";repo")) {
+    msg.channel.send("https://gitlab.com/k2l8m11n2/vinny/");
+  }
+  if (m.includes(";zwsp")) {
+    msg.channel.send("\u200b");
+  }
+  if (m.includes(";uptime")) {
+    msg.channel.send(
+      moment
+        .duration(dclient.uptime)
+        .locale("fr")
+        .humanize()
+    );
   }
 }
 
