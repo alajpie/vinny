@@ -397,34 +397,6 @@ function parse(msg) {
       })();
     }
   }
-  if (process.env.NODE_ENV !== "production") {
-    var match = msg.content.match(/;dev (.*)/i);
-    if (match) {
-      if (match[1] === "yes" || match[1] === "no") {
-        lock.acquire("vote", async () => {
-          const rawDirection = match[1];
-          const threshold = await rclient.getAsync("vote-threshold");
-          if (!threshold) {
-            msg.channel.send("No vote currently in progress.");
-          } else {
-            const direction = rawDirection === "yes";
-            msg.react("☑");
-            rclient
-              .incrAsync(direction ? "vote-for" : "vote-against")
-              .then(() => {
-                voteDoneCheck(msg.channel);
-              });
-          }
-        });
-      } else if (match[1].match(/(voter.?fraud|re.?vote)/)) {
-        rclient.srem("vote-voters", msg.author.id);
-      } else if (match[1] === "unlock") {
-        rclient.delAsync(`1mph-lock/${msg.author.id}`).then(() => {
-          lockedCheck();
-        });
-      }
-    }
-  }
   if (msg.guild && msg.guild.id === tier.mainGuild) {
     var match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
@@ -711,6 +683,34 @@ function parse(msg) {
         }
       } else {
         msg.channel.send("Couldn't find that role :/");
+      }
+    }
+    if (process.env.NODE_ENV !== "production") {
+      var match = msg.content.match(/;dev (.*)/i);
+      if (match) {
+        if (match[1] === "yes" || match[1] === "no") {
+          lock.acquire("vote", async () => {
+            const rawDirection = match[1];
+            const threshold = await rclient.getAsync("vote-threshold");
+            if (!threshold) {
+              msg.channel.send("No vote currently in progress.");
+            } else {
+              const direction = rawDirection === "yes";
+              msg.react("☑");
+              rclient
+                .incrAsync(direction ? "vote-for" : "vote-against")
+                .then(() => {
+                  voteDoneCheck(msg.channel);
+                });
+            }
+          });
+        } else if (match[1].match(/(voter.?fraud|re.?vote)/)) {
+          rclient.srem("vote-voters", msg.author.id);
+        } else if (match[1] === "unlock") {
+          rclient.delAsync(`1mph-lock/${msg.author.id}`).then(() => {
+            lockedCheck();
+          });
+        }
       }
     }
     if (m.includes(";leaderboard")) {
