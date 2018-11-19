@@ -245,7 +245,7 @@ dclient.on("messageUpdate", (prev, next) => {
     next.channel.id === tier.emojiChannel
   ) {
     next.delete(500);
-  } else if (next.channel.id === r5kChannel) {
+  } else if (next.channel.id === tier.r5kChannel) {
     rclient.sismemberAsync("r5k", stripped).then(seen => {
       if (seen) {
         next.delete(500);
