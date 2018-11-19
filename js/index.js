@@ -236,16 +236,16 @@ async function timezoneUpdate() {
 }
 
 async function voteDoneCheck(channel) {
-  const results = await rclient
+  const results = (await rclient
     .multi()
     .get("vote-for")
     .get("vote-against")
     .get("vote-threshold")
     .get("vote-total-voters")
-    .execAsync();
+    .execAsync()).map(x => +x);
   if (
-    results[0] == results[2] ||
-    results[1] == results[2] ||
+    results[0] === results[2] ||
+    results[1] === results[2] ||
     results[0] + results[1] >= results[3]
   ) {
     const emoji =
