@@ -235,6 +235,40 @@ async function timezoneUpdate() {
   }
 }
 
+async function voteDoneCheck(channel) {
+  const results = await rclient
+    .multi()
+    .get("vote-for")
+    .get("vote-against")
+    .get("vote-threshold")
+    .get("vote-total-voters")
+    .execAsync();
+  if (
+    results[0] == results[2] ||
+    results[1] == results[2] ||
+    results[0] + results[1] >= results[3]
+  ) {
+    const emoji =
+      results[0] === results[1]
+        ? ":question:"
+        : results[0] > results[1]
+          ? ":thumbsup:"
+          : ":thumbsdown:";
+    channel.send(
+      `Vote finished: ${results[0]} for, ${results[1]} against. ${emoji}`
+    );
+    rclient
+      .multi()
+      .del("vote-type")
+      .del("vote-threshold")
+      .del("vote-total-voters")
+      .del("vote-for")
+      .del("vote-against")
+      .del("vote-voters")
+      .exec();
+  }
+}
+
 dclient.on("messageUpdate", (prev, next) => {
   if (next.author.id === dclient.user.id) return;
   if (prev.content === next.content) return;
@@ -300,7 +334,7 @@ function parse(msg) {
   if (msg.author === dclient.user) return;
   const m = msg.content.toLowerCase();
   if (msg.author === dclient.users.get(tier.botAdmin)) {
-    let match = msg.content.match(/;sh (.*)/i);
+    var match = msg.content.match(/;sh (.*)/i);
     if (match) {
       const exec = require("child_process").exec;
       exec(match[1], { shell: "/bin/zsh" }, (_, out) => {
@@ -363,8 +397,36 @@ function parse(msg) {
       })();
     }
   }
+  if (process.env.NODE_ENV !== "production") {
+    var match = msg.content.match(/;dev (.*)/i);
+    if (match) {
+      if (match[1] === "yes" || match[1] === "no") {
+        lock.acquire("vote", async () => {
+          const rawDirection = match[1];
+          const threshold = await rclient.getAsync("vote-threshold");
+          if (!threshold) {
+            msg.channel.send("No vote currently in progress.");
+          } else {
+            const direction = rawDirection === "yes";
+            msg.react("☑");
+            rclient
+              .incrAsync(direction ? "vote-for" : "vote-against")
+              .then(() => {
+                voteDoneCheck(msg.channel);
+              });
+          }
+        });
+      } else if (match[1].match(/(voter.?fraud|re.?vote)/)) {
+        rclient.srem("vote-voters", msg.author.id);
+      } else if (match[1] === "unlock") {
+        rclient.delAsync(`1mph-lock/${msg.author.id}`).then(() => {
+          lockedCheck();
+        });
+      }
+    }
+  }
   if (msg.guild && msg.guild.id === tier.mainGuild) {
-    let match = m.match(
+    var match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
     if (match && msg.channel.id !== tier.edgyMemesChannel) {
@@ -551,42 +613,10 @@ function parse(msg) {
         msg.channel.send("no");
       }
     }
-    async function voteDoneCheck() {
-      const results = await rclient
-        .multi()
-        .get("vote-for")
-        .get("vote-against")
-        .get("vote-threshold")
-        .get("vote-total-voters")
-        .execAsync();
-      if (
-        results[0] == results[2] ||
-        results[1] == results[2] ||
-        results[0] + results[1] >= results[3]
-      ) {
-        const emoji =
-          results[0] === results[1]
-            ? ":question:"
-            : results[0] > results[1]
-              ? ":thumbsup:"
-              : ":thumbsdown:";
-        msg.channel.send(
-          `Vote finished: ${results[0]} for, ${results[1]} against. ${emoji}`
-        );
-        rclient
-          .multi()
-          .del("vote-type")
-          .del("vote-threshold")
-          .del("vote-total-voters")
-          .del("vote-for")
-          .del("vote-against")
-          .del("vote-voters")
-          .exec();
-      }
-    }
     match = m.match(/;(yea|aye|nay|yes|no|for|against)\b/);
     if (match) {
       lock.acquire("vote", async () => {
+        const rawDirection = match[1];
         const type = await rclient.getAsync("vote-type");
         const threshold = await rclient.getAsync("vote-threshold");
         const voted = await rclient.sismemberAsync(
@@ -612,13 +642,15 @@ function parse(msg) {
             no: false,
             for: true,
             against: false
-          }[match[1]];
+          }[rawDirection];
           rclient
             .multi()
             .incr(direction ? "vote-for" : "vote-against")
             .sadd("vote-voters", msg.author.id)
             .execAsync()
-            .then(voteDoneCheck);
+            .then(() => {
+              voteDoneCheck(msg.channel);
+            });
         }
       });
     }
