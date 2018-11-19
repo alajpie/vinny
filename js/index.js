@@ -402,9 +402,11 @@ function parse(msg) {
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
     if (match && msg.channel.id !== tier.edgyMemesChannel) {
-      msg.reply(
-        "you used a word that's on our blocklist. This incident has been reported."
-      );
+      if (msg.channel.id !== tier.onemphChannel) {
+        msg.reply(
+          "you used a word that's on our blocklist. This incident has been reported."
+        );
+      }
       if (match[1] !== "stinky") {
         dclient.channels
           .get(tier.modLoungeChannel)
