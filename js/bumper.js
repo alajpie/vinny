@@ -16,7 +16,7 @@ dclient.on("ready", () => {
 let timer;
 
 dclient.on("message", msg => {
-	if (msg.guild.id !== "472079800744411136") {
+	if (!msg.guild || msg.guild.id !== "472079800744411136") {
 		return;
 	}
 	if (msg.content.includes(";bumper")) {
