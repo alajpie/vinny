@@ -353,6 +353,26 @@ function parse(msg) {
       msg.delete(500);
       msg.channel.send(match[1]);
     }
+    match = msg.content.match(/;clearchannelyesimsure/i);
+    if (match) {
+      (async () => {
+        let b4 = "";
+        while (true) {
+          const messagesPromise = msg.channel.fetchMessages({
+            limit: 50,
+            before: b4
+          });
+          const messages = (await messagesPromise).array();
+          if (messages.length === 0) {
+            break;
+          }
+          b4 = messages[messages.length - 1].id;
+          for (var x of messages) {
+            x.delete();
+          }
+        }
+      })();
+    }
     match = msg.content.match(/;images ?(.*)?/i);
     if (match) {
       (async () => {
