@@ -506,6 +506,14 @@ function parse(msg) {
         msg.channel.send("no");
       }
     }
+    match = msg.content.match(/;channame (.*)/i);
+    if (match) {
+      if (msg.member.roles.has(tier.modsRole)) {
+        msg.channel.setName(match[1].replace(/ /g, "\u205f"));
+      } else {
+        msg.channel.send("no");
+      }
+    }
     match = msg.content.match(/;mkrole (.*)/i);
     // 'msg' not 'm' to preserve case, 'i' for case insensitive 'mkrole' match
     if (match) {
