@@ -35,7 +35,10 @@ dclient.on("message", msg => {
 						.add(offset, "milliseconds")
 						.format()}.`
 				);
-				setTimeout(bump, offset);
+				setTimeout(() => {
+					bump();
+					bump();
+				}, offset);
 			}
 		}
 	}
