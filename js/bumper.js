@@ -35,7 +35,8 @@ dclient.on("message", msg => {
 						.add(offset, "milliseconds")
 						.format()}.`
 				);
-				setTimeout(() => {
+				clearTimeout(timer);
+				timer = setTimeout(() => {
 					bump().then(bump);
 				}, offset);
 			}
