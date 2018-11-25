@@ -4,8 +4,8 @@ const moment = require("moment-timezone");
 
 const dclient = new Discord.Client();
 
-function bump() {
-	dclient.channels.get("516014642724864000").send("!disboard bump");
+async function bump() {
+	return dclient.channels.get("516014642724864000").send("!disboard bump");
 }
 
 dclient.on("ready", () => {
@@ -36,8 +36,7 @@ dclient.on("message", msg => {
 						.format()}.`
 				);
 				setTimeout(() => {
-					bump();
-					bump();
+					bump().then(bump);
 				}, offset);
 			}
 		}
