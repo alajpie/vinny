@@ -9,6 +9,7 @@ const bluebird = require("bluebird");
 const shellExec = require("shell-exec");
 const lock = new (require("async-lock"))();
 const rss = new (require("rss-parser"))();
+const assert = require("assert");
 
 console.log(
   `${process.env.NODE_ENV === "production" ? "Production" : "Dev"} tier.`
@@ -119,6 +120,13 @@ const channels = [
 ]; // hug!
 
 dclient.on("ready", () => {
+  [tier.mainGuild, "471081005634289664"].forEach(x => {
+    // TODO: unhardcode this
+    assert.ok(
+      dclient.guilds.get(x).roles.find(y => y.name === "Vinny.js"),
+      `There needs to be a "Vinny.js" role (${dclient.guilds.get(x).name}).`
+    );
+  });
   console.log(`Logged in as ${dclient.user.tag}!`);
   dclient.user.setPresence({
     game: {
@@ -478,24 +486,34 @@ function parse(msg) {
           if (msg.member.roles.has(role.id)) {
             msg.channel.send("You already were :)");
           } else {
-            msg.member
-              .addRole(role)
-              .then(() => {
+            if (
+              role.comparePositionTo(
+                msg.guild.roles.find(y => y.name === "Vinny.js")
+              ) < 0
+            ) {
+              msg.member.addRole(role).then(() => {
                 msg.channel.send("Added!");
-              })
-              .catch(() => msg.channel.send("no"));
+              });
+            } else {
+              msg.channel.send("no");
+            }
           }
         } else {
           // remove
           if (!msg.member.roles.has(role.id)) {
-            msg.channel.send("You weren't but now you aren't even more");
+            msg.channel.send("You weren't but now you aren't even more.");
           } else {
-            msg.member
-              .removeRole(role)
-              .then(() => {
+            if (
+              role.comparePositionTo(
+                msg.guild.roles.find(y => y.name === "Vinny.js")
+              ) < 0
+            ) {
+              msg.member.removeRole(role).then(() => {
                 msg.channel.send("Removed!");
-              })
-              .catch(() => msg.channel.send("yes you are"));
+              });
+            } else {
+              msg.channel.send("yes you are");
+            }
           }
         }
       } else {
