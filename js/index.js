@@ -522,7 +522,7 @@ function parse(msg) {
             } <@&${tier.modsRole}>`
           );
       }
-      msg.delete();
+      msg.delete(500);
       return;
     }
     if (msg.channel.id === tier.onemphChannel) {
@@ -550,7 +550,7 @@ function parse(msg) {
       }, noemo);
       noemo = noemo.trim();
       if (noemo) {
-        msg.delete();
+        msg.delete(500);
       }
       return;
     }
