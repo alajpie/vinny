@@ -353,15 +353,25 @@ function parse(msg) {
       msg.delete(500);
       msg.channel.send(match[1]);
     }
-    match = msg.content.match(/;clear (\d*)/i);
+    match = msg.content.match(/;clear (\d+)(?: (\d+))?/i);
     if (match) {
+      if (match[2]) {
+        // a range
+        // so both numbers are IDs
+        var limit = BigInt(match[1]) < BigInt(match[2]) ? match[1] : match[2];
+        var b4 = BigInt(match[1]) > BigInt(match[2]) ? match[1] : match[2];
+        var b4 = (BigInt(b4) + 1n).toString(); // inclusive from both sides
+      } else {
+        // not a range
+        // the number can be a count or an ID
+        var limit = match[1];
+        var b4 = "";
+      }
       /// we return after i messages or if message's id ID i
       /// so regardless of whether a count or a message's ID is provided, it does the right thing
       /// (since message IDs are very big numbers, they are unlikely to be specified or counted down to)
       (async () => {
-        const limit = match[1];
         let i = parseInt(limit) + 1; // clear out the ;clear command too
-        let b4 = "";
         while (i > 0) {
           const messagesPromise = msg.channel.fetchMessages({
             limit: 50,
