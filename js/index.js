@@ -353,6 +353,35 @@ function parse(msg) {
       msg.delete(500);
       msg.channel.send(match[1]);
     }
+    match = msg.content.match(/;clear (\d*)/i);
+    if (match) {
+      /// we return after i messages or if message's id ID i
+      /// so regardless of whether a count or a message's ID is provided, it does the right thing
+      /// (since message IDs are very big numbers, they are unlikely to be specified or counted down to)
+      (async () => {
+        const limit = match[1];
+        let i = parseInt(limit) + 1; // clear out the ;clear command too
+        let b4 = "";
+        while (i > 0) {
+          const messagesPromise = msg.channel.fetchMessages({
+            limit: 50,
+            before: b4
+          });
+          const messages = (await messagesPromise).array();
+          if (messages.length === 0) {
+            break;
+          }
+          b4 = messages[messages.length - 1].id;
+          for (var x of messages) {
+            i--;
+            x.delete();
+            if (x.id === limit || i <= 0) {
+              return;
+            }
+          }
+        }
+      })();
+    }
     match = msg.content.match(/;clearchannelyesimsure/i);
     if (match) {
       (async () => {
