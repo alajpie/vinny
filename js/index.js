@@ -40,6 +40,7 @@ const prodTier = {
   r5kFailsChannel: "497883396203216917",
   onemphChannel: "498564815384739864",
   emojiChannel: "505844487642284044",
+  countingChannel: "517061962866229279",
   nickMuseumChannel: "498572261746278441",
   edgyMemesChannel: "490036639473729547",
 
@@ -60,6 +61,7 @@ const devTier = {
   r5kFailsChannel: "514124773551243290",
   onemphChannel: "514124803427532801",
   emojiChannel: "514124848717365269",
+  countingChannel: "517047271347585065",
   nickMuseumChannel: "514132045744832523",
   edgyMemesChannel: "514124920947605515",
 
@@ -140,6 +142,11 @@ dclient.on("ready", () => {
     setTimeout(mnt, 10 * 1000);
   };
   mnt();
+  rclient.getAsync("counting-count").then(x => {
+    dclient.channels
+      .get(tier.countingChannel)
+      .setTopic(`Next number: ${x ? parseInt(x) : 0}`);
+  });
 });
 
 dclient.on("error", () => {
@@ -276,7 +283,8 @@ dclient.on("messageUpdate", (prev, next) => {
   const stripped = next.content.toLowerCase().replace(/[^0-9a-z]/gi, "");
   if (
     next.channel.id === tier.onemphChannel ||
-    next.channel.id === tier.emojiChannel
+    next.channel.id === tier.emojiChannel ||
+    next.channel.id === tier.countingChannel
   ) {
     next.delete(500);
   } else if (next.channel.id === tier.r5kChannel) {
@@ -546,6 +554,34 @@ function parse(msg) {
       }
       return;
     }
+    if (msg.channel.id === tier.countingChannel) {
+      lock.acquire("counting", unlock => {
+        rclient
+          .multi()
+          .get("counting-count")
+          .get("counting-last")
+          .exec((_, x) => {
+            if (!x[0]) {
+              x[0] = 0;
+            }
+            if (m === x[0].toString() && msg.author.id !== x[1]) {
+              msg.channel.setTopic(
+                `Next number: ${x[0] ? parseInt(x[0]) + 1 : 1}`
+              );
+              rclient
+                .multi()
+                .incr("counting-count")
+                .set("counting-last", msg.author.id)
+                .execAsync()
+                .then(unlock.bind(null, null));
+            } else {
+              msg.delete(500);
+              unlock();
+            }
+          });
+      });
+      return;
+    }
     const stripped = m.replace(/[^0-9a-z]/gi, "");
     if (msg.channel.id === tier.r5kChannel) {
       rclient.sismemberAsync("r5k", stripped).then(seen => {
@@ -796,6 +832,8 @@ function parse(msg) {
           rclient.delAsync(`1mph-lock/${msg.author.id}`).then(() => {
             lockedCheck();
           });
+        } else if (match[1] === "uncount") {
+          rclient.del("counting-last");
         }
       }
     }
