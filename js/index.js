@@ -417,6 +417,45 @@ function parse(msg) {
       })();
     }
   }
+  if (
+    (msg.guild && msg.guild.id === tier.mainGuild) ||
+    msg.guild.id === "471081005634289664"
+  ) {
+    // Hazel's server
+    match = m.match(/;iam(n|not|n't|)? (.*)/);
+    if (match) {
+      const role = msg.guild.roles.find(x => x.name.toLowerCase() === match[2]);
+      if (role) {
+        if (!match[1]) {
+          // add
+          if (msg.member.roles.has(role.id)) {
+            msg.channel.send("You already were :)");
+          } else {
+            msg.member
+              .addRole(role)
+              .then(() => {
+                msg.channel.send("Added!");
+              })
+              .catch(() => msg.channel.send("no"));
+          }
+        } else {
+          // remove
+          if (!msg.member.roles.has(role.id)) {
+            msg.channel.send("You weren't but now you aren't even more");
+          } else {
+            msg.member
+              .removeRole(role)
+              .then(() => {
+                msg.channel.send("Removed!");
+              })
+              .catch(() => msg.channel.send("yes you are"));
+          }
+        }
+      } else {
+        msg.channel.send("Couldn't find that role :/");
+      }
+    }
+  }
   if (msg.guild && msg.guild.id === tier.mainGuild) {
     var match = m.match(
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
@@ -692,39 +731,6 @@ function parse(msg) {
             msg.channel.send("No vote currently in progress.");
           }
         });
-    }
-    match = m.match(/;iam(n|not|n't|)? (.*)/);
-    if (match) {
-      const role = msg.guild.roles.find(x => x.name.toLowerCase() === match[2]);
-      if (role) {
-        if (!match[1]) {
-          // add
-          if (msg.member.roles.has(role.id)) {
-            msg.channel.send("You already were :)");
-          } else {
-            msg.member
-              .addRole(role)
-              .then(() => {
-                msg.channel.send("Added!");
-              })
-              .catch(() => msg.channel.send("no"));
-          }
-        } else {
-          // remove
-          if (!msg.member.roles.has(role.id)) {
-            msg.channel.send("You weren't but now you aren't even more");
-          } else {
-            msg.member
-              .removeRole(role)
-              .then(() => {
-                msg.channel.send("Removed!");
-              })
-              .catch(() => msg.channel.send("yes you are"));
-          }
-        }
-      } else {
-        msg.channel.send("Couldn't find that role :/");
-      }
     }
     if (process.env.NODE_ENV !== "production") {
       var match = msg.content.match(/;dev (.*)/i);
