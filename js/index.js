@@ -388,6 +388,7 @@ function parse(msg) {
       /// (since message IDs are very big numbers, they are unlikely to be specified or counted down to)
       (async () => {
         let i = parseInt(limit) + 1; // clear out the ;clear command too
+        const promises = [];
         while (i > 0) {
           const messagesPromise = msg.channel.fetchMessages({
             limit: 50,
@@ -400,13 +401,16 @@ function parse(msg) {
           b4 = messages[messages.length - 1].id;
           for (var x of messages) {
             i--;
-            x.delete();
+            promises.push(x.delete());
             if (x.id === limit || i <= 0) {
-              return;
+              return Promise.all(promises);
             }
           }
         }
-      })();
+        return Promise.all(promises);
+      })().then(() => {
+        msg.channel.send("Cleared!").then(x => x.delete(500));
+      });
     }
     match = msg.content.match(/;clearchannelyesimsure/i);
     if (match) {
