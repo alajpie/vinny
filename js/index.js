@@ -252,8 +252,8 @@ async function voteDoneCheck(channel) {
       results[0] === results[1]
         ? ":question:"
         : results[0] > results[1]
-          ? ":thumbsup:"
-          : ":thumbsdown:";
+        ? ":thumbsup:"
+        : ":thumbsdown:";
     channel.send(
       `Vote finished: ${results[0]} for, ${results[1]} against. ${emoji}`
     );
@@ -633,8 +633,8 @@ function parse(msg) {
               results[0] === results[1]
                 ? ":question:"
                 : results[0] > results[1]
-                  ? ":thumbsup:"
-                  : ":thumbsdown:";
+                ? ":thumbsup:"
+                : ":thumbsdown:";
             msg.channel.send(
               `Vote finished: ${results[0]} for, ${
                 results[1]
@@ -720,8 +720,8 @@ function parse(msg) {
               results[0] === results[1]
                 ? ":question:"
                 : results[0] > results[1]
-                  ? ":thumbsup:"
-                  : ":thumbsdown:";
+                ? ":thumbsup:"
+                : ":thumbsdown:";
             msg.channel.send(
               `Current ${results[3] ? results[3] + " " : ""}vote results: ${
                 results[0]
