@@ -733,7 +733,7 @@ function parse(msg) {
       /;(yea|aye|nay|yes|no|for|against|sure|yep|yeah|totally|absolutely|nah|nope|nuh|never)\b/
     );
     if (match) {
-      lock.acquire("vote", async () => {
+      lock.acquire("vote", async unlock => {
         const rawDirection = match[1];
         const type = await rclient.getAsync("vote-type");
         const threshold = await rclient.getAsync("vote-threshold");
@@ -743,13 +743,16 @@ function parse(msg) {
         );
         if (!threshold) {
           msg.channel.send("No vote currently in progress.");
+          unlock();
         } else if (
           type &&
           !msg.member.roles.find(x => x.name.toLowerCase() === type)
         ) {
           msg.channel.send("You're not authorized to vote.");
+          unlock();
         } else if (voted) {
           msg.channel.send("You already voted.");
+          unlock();
         } else {
           msg.react("☑");
           const direction = {
@@ -777,7 +780,8 @@ function parse(msg) {
             .execAsync()
             .then(() => {
               voteDoneCheck(msg.channel);
-            });
+            })
+            .then(unlock);
         }
       });
     }
@@ -811,11 +815,12 @@ function parse(msg) {
       var match = msg.content.match(/;dev (.*)/i);
       if (match) {
         if (match[1] === "yes" || match[1] === "no") {
-          lock.acquire("vote", async () => {
+          lock.acquire("vote", async unlock => {
             const rawDirection = match[1];
             const threshold = await rclient.getAsync("vote-threshold");
             if (!threshold) {
               msg.channel.send("No vote currently in progress.");
+              unlock();
             } else {
               const direction = rawDirection === "yes";
               msg.react("☑");
@@ -823,7 +828,8 @@ function parse(msg) {
                 .incrAsync(direction ? "vote-for" : "vote-against")
                 .then(() => {
                   voteDoneCheck(msg.channel);
-                });
+                })
+                .then(unlock);
             }
           });
         } else if (match[1].match(/(voter.?fraud|re.?vote)/)) {
