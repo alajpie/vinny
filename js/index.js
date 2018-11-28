@@ -408,9 +408,7 @@ function parse(msg) {
           }
         }
         return Promise.all(promises);
-      })().then(() => {
-        msg.channel.send("Cleared!").then(x => x.delete(500));
-      });
+      })();
     }
     match = msg.content.match(/;clearchannelyesimsure/i);
     if (match) {
