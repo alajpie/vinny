@@ -81,7 +81,7 @@ const tier = process.env.NODE_ENV === "production" ? prodTier : devTier;
 
 const tzdata = {
   "144880429533626368": "Europe/Warsaw",
-  // "174183329308999681": "Europe/Riga",
+  "174183329308999681": "Europe/Riga",
   "379107526278381589": "America/Denver",
   "315801718975889410": "Europe/London",
   "358050835533660161": "America/New_York",
