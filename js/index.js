@@ -332,6 +332,8 @@ dclient.on("message", msg => {
   } else if (msg.guild.id !== tier.mainGuild) {
     return;
   }
+  msg.content = msg.content.replace("@everyone", "@\u200beveryone");
+  msg.content = msg.content.replace("@here", "@\u200bhere");
   if (msg.content.includes(";ignore") && msg.channel.id !== tier.r5kChannel) {
     return;
   }
