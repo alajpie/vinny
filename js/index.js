@@ -611,7 +611,10 @@ function parse(msg) {
     if (msg.channel.id === tier.hashLowerChannel) {
       lock.acquire("hash-lower", async unlock => {
         const lastHashPromise = rclient.getAsync("hash-lower");
-        const hash = new SHA3(256).update(msg.content).digest("hex");
+        const hash = new SHA3(256)
+          .update(process.env.VINNY_HASH_LOWER_SALT)
+          .update(msg.content)
+          .digest("hex");
         if (hash < (await lastHashPromise)) {
           msg.channel.send(hash);
           rclient.setAsync("hash-lower", hash).then(unlock.bind(null, null));
