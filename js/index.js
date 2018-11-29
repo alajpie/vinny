@@ -44,6 +44,7 @@ const prodTier = {
   emojiChannel: "505844487642284044",
   countingChannel: "517061962866229279",
   hashLowerChannel: "517489574780338187",
+  russianRouletteChannel: "517792232821227520",
   nickMuseumChannel: "498572261746278441",
   edgyMemesChannel: "490036639473729547",
 
@@ -66,6 +67,7 @@ const devTier = {
   emojiChannel: "514124848717365269",
   countingChannel: "517047271347585065",
   hashLowerChannel: "517485985882177563",
+  russianRouletteChannel: "517784617684828162",
   nickMuseumChannel: "514132045744832523",
   edgyMemesChannel: "514124920947605515",
 
@@ -296,7 +298,8 @@ dclient.on("messageUpdate", (prev, next) => {
     next.channel.id === tier.onemphChannel ||
     next.channel.id === tier.emojiChannel ||
     next.channel.id === tier.countingChannel ||
-    next.channel.id === tier.hashLowerChannel
+    next.channel.id === tier.hashLowerChannel ||
+    next.channel.id === tier.russianRouletteChannel
   ) {
     next.delete(500);
   } else if (next.channel.id === tier.r5kChannel) {
@@ -634,6 +637,28 @@ function parse(msg) {
         }
       });
       return;
+    }
+    if (msg.channel.id === tier.russianRouletteChannel) {
+      (async () => {
+        if (Math.random() <= 1 / 100) {
+          msg.channel.send(`Bye ${msg.author.tag}...`);
+          msg.channel.overwritePermissions(msg.author, {
+            SEND_MESSAGES: false
+          });
+        }
+        (await msg.channel.fetchMessages({ limit: 10 })).array().forEach(x => {
+          if (
+            x.author.id === dclient.user.id &&
+            x.content ===
+              "**Every message you send here is a 1% chance of getting banned from this channel.**"
+          ) {
+            x.delete(500);
+          }
+        });
+        msg.channel.send(
+          "**Every message you send here is a 1% chance of getting banned from this channel.**"
+        );
+      })();
     }
     const stripped = m.replace(/[^0-9a-z]/gi, "");
     if (msg.channel.id === tier.r5kChannel) {
