@@ -44,7 +44,6 @@ const prodTier = {
   emojiChannel: "505844487642284044",
   countingChannel: "517061962866229279",
   hashLowerChannel: "517489574780338187",
-  hashLowerFailsChannel: "517489591834378240",
   nickMuseumChannel: "498572261746278441",
   edgyMemesChannel: "490036639473729547",
 
@@ -67,7 +66,6 @@ const devTier = {
   emojiChannel: "514124848717365269",
   countingChannel: "517047271347585065",
   hashLowerChannel: "517485985882177563",
-  hashLowerFailsChannel: "517486015053692928",
   nickMuseumChannel: "514132045744832523",
   edgyMemesChannel: "514124920947605515",
 
@@ -631,10 +629,6 @@ function parse(msg) {
           rclient.setAsync("hash-lower", hash).then(unlock.bind(null, null));
         } else {
           msg.delete(500);
-          dclient.channels
-            .get(tier.hashLowerFailsChannel)
-            .send(`${msg.author.tag}: ${msg.content}`);
-          dclient.channels.get(tier.hashLowerFailsChannel).send(hash);
           unlock();
         }
       });
