@@ -10,6 +10,7 @@ const shellExec = require("shell-exec");
 const lock = new (require("async-lock"))();
 const rss = new (require("rss-parser"))();
 const assert = require("assert");
+const { SHA3 } = require("sha3");
 
 console.log(
   `${process.env.NODE_ENV === "production" ? "Production" : "Dev"} tier.`
@@ -42,6 +43,8 @@ const prodTier = {
   onemphChannel: "498564815384739864",
   emojiChannel: "505844487642284044",
   countingChannel: "517061962866229279",
+  hashLowerChannel: "517489574780338187",
+  hashLowerFailsChannel: "517489591834378240",
   nickMuseumChannel: "498572261746278441",
   edgyMemesChannel: "490036639473729547",
 
@@ -63,6 +66,8 @@ const devTier = {
   onemphChannel: "514124803427532801",
   emojiChannel: "514124848717365269",
   countingChannel: "517047271347585065",
+  hashLowerChannel: "517485985882177563",
+  hashLowerFailsChannel: "517486015053692928",
   nickMuseumChannel: "514132045744832523",
   edgyMemesChannel: "514124920947605515",
 
@@ -292,7 +297,8 @@ dclient.on("messageUpdate", (prev, next) => {
   if (
     next.channel.id === tier.onemphChannel ||
     next.channel.id === tier.emojiChannel ||
-    next.channel.id === tier.countingChannel
+    next.channel.id === tier.countingChannel ||
+    next.channel.id === tier.hashLowerChannel
   ) {
     next.delete(500);
   } else if (next.channel.id === tier.r5kChannel) {
@@ -599,6 +605,24 @@ function parse(msg) {
               unlock();
             }
           });
+      });
+      return;
+    }
+    if (msg.channel.id === tier.hashLowerChannel) {
+      lock.acquire("hash-lower", async unlock => {
+        const lastHashPromise = rclient.getAsync("hash-lower");
+        const hash = new SHA3(256).update(msg.content).digest("hex");
+        if (hash < (await lastHashPromise)) {
+          msg.channel.send(hash);
+          rclient.setAsync("hash-lower", hash).then(unlock.bind(null, null));
+        } else {
+          msg.delete(500);
+          dclient.channels
+            .get(tier.hashLowerFailsChannel)
+            .send(`${msg.author.tag}: ${msg.content}`);
+          dclient.channels.get(tier.hashLowerFailsChannel).send(hash);
+          unlock();
+        }
       });
       return;
     }
