@@ -617,6 +617,15 @@ function parse(msg) {
           .digest("hex");
         if (hash < (await lastHashPromise)) {
           msg.channel.send(hash);
+          const probability =
+            Math.round(
+              (parseInt(hash.slice(0, 8), 16) / parseInt("f".repeat(8), 16)) *
+                100 *
+                10000
+            ) / 10000;
+          msg.channel.setTopic(
+            `Probability to pass: ${probability}%\nGet a lower hash than the previous message. (It's salted so no funny business!)`
+          );
           rclient.setAsync("hash-lower", hash).then(unlock.bind(null, null));
         } else {
           msg.delete(500);
