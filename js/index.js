@@ -615,7 +615,8 @@ function parse(msg) {
           .update(process.env.VINNY_HASH_LOWER_SALT)
           .update(msg.content)
           .digest("hex");
-        if (hash < (await lastHashPromise)) {
+        const lastHash = await lastHashPromise;
+        if (!lastHash || hash < lastHash) {
           msg.channel.send(hash);
           const probability =
             Math.round(
