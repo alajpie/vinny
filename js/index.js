@@ -11,6 +11,7 @@ const lock = new (require("async-lock"))();
 const rss = new (require("rss-parser"))();
 const assert = require("assert");
 const { SHA3 } = require("sha3");
+const crypto = require("crypto");
 
 console.log(
   `${process.env.NODE_ENV === "production" ? "Production" : "Dev"} tier.`
@@ -482,6 +483,21 @@ function parse(msg) {
           .then(x => msg.channel.send(`<${x.body.link}>`));
       })();
     }
+    if (m.includes(";salt")) {
+      rclient
+        .multi()
+        .del("hash-lower-last")
+        .set("hash-lower-salt", crypto.randomBytes(32).toString("hex"))
+        .execAsync()
+        .then(() => {
+          dclient.channels
+            .get(tier.hashLowerChannel)
+            .setTopic(
+              `Probability to pass: 100%\nGet a lower hash than the previous message. (It's salted so no funny business!)`
+            );
+          dclient.channels.get(tier.hashLowerChannel).send("Salt reset!");
+        });
+    }
   }
   if (
     (msg.guild && msg.guild.id === tier.mainGuild) ||
@@ -613,9 +629,14 @@ function parse(msg) {
     }
     if (msg.channel.id === tier.hashLowerChannel) {
       lock.acquire("hash-lower", async unlock => {
-        const lastHashPromise = rclient.getAsync("hash-lower");
+        const lastHashPromise = rclient.getAsync("hash-lower-last");
+        let salt = await rclient.getAsync("hash-lower-salt");
+        if (!salt) {
+          salt = crypto.randomBytes(32).toString("hex");
+          await rclient.setAsync("hash-lower-salt", salt);
+        }
         const hash = new SHA3(256)
-          .update(process.env.VINNY_HASH_LOWER_SALT)
+          .update(salt)
           .update(msg.content)
           .digest("hex");
         const lastHash = await lastHashPromise;
@@ -630,7 +651,9 @@ function parse(msg) {
           msg.channel.setTopic(
             `Probability to pass: ${probability}%\nGet a lower hash than the previous message. (It's salted so no funny business!)`
           );
-          rclient.setAsync("hash-lower", hash).then(unlock.bind(null, null));
+          rclient
+            .setAsync("hash-lower-last", hash)
+            .then(unlock.bind(null, null));
         } else {
           msg.delete(500);
           unlock();
