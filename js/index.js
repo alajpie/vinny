@@ -331,6 +331,9 @@ dclient.on("guildMemberUpdate", (prev, next) => {
 });
 
 dclient.on("message", msg => {
+  if (!msg.guild) {
+    return; // DM
+  }
   if (process.env.NODE_ENV === "production") {
     if (msg.guild.id === devTier.mainGuild) {
       return;
