@@ -343,17 +343,7 @@ dclient.on("message", msg => {
     msg.content = msg.content.replace(/( ?;del|;del ?|;del)/g, "");
     msg.delete(500);
   }
-  if (msg.content.includes(";time")) {
-    msg.content = msg.content.replace(/( ?;time|;time ?|;time)/g, "");
-    const t1 = process.hrtime();
-    parse(msg);
-    const t2 = process.hrtime(t1);
-    msg.channel.send(
-      `Processing took ${Math.round((t2[1] / 1e6) * 100) / 100}ms`
-    );
-  } else {
-    parse(msg);
-  }
+  parse(msg);
 });
 
 function parse(msg) {
