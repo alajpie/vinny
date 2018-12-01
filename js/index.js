@@ -550,7 +550,10 @@ function parse(msg) {
       /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
     );
     if (match && msg.channel.id !== tier.edgyMemesChannel) {
-      if (msg.channel.id !== tier.onemphChannel) {
+      if (
+        msg.channel.id !== tier.onemphChannel &&
+        msg.channel.id !== tier.hashLowerChannel
+      ) {
         msg.reply(
           "you used a word that's on our blocklist. This incident has been reported."
         );
