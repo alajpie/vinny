@@ -322,7 +322,11 @@ dclient.on("guildMemberUpdate", (prev, next) => {
   if (next.roles.has(tier.nickMuseumRole)) {
     dclient.channels
       .get(tier.nickMuseumChannel)
-      .send(`${next.user.tag}: ${next.nickname}`);
+      .send(
+        `${next.user.tag}: ${next.nickname}`
+          .replace("@everyone", "@\u200beveryone")
+          .replace("@here", "@\u200bhere")
+      );
   }
 });
 
