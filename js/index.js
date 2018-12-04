@@ -21,6 +21,7 @@ const redis = require("redis");
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const rclient = redis.createClient({
+  host: process.env.VINNY_REDIS_HOST || "127.0.0.1",
   db: process.env.NODE_ENV === "production" ? 0 : 1
 });
 
@@ -360,7 +361,7 @@ function parse(msg) {
     var match = msg.content.match(/;sh (.*)/i);
     if (match) {
       const exec = require("child_process").exec;
-      exec(match[1], { shell: "/bin/zsh" }, (_, out) => {
+      exec(match[1], (_, out) => {
         msg.channel.send(out).catch(() => {});
       });
     }
@@ -1125,3 +1126,5 @@ function parse(msg) {
 }
 
 dclient.login(process.env.VINNY_DISCORD_TOKEN);
+
+process.on("SIGTERM", () => progress.exit(0));
