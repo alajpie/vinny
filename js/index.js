@@ -1140,4 +1140,4 @@ function parse(msg) {
 
 dclient.login(process.env.VINNY_DISCORD_TOKEN);
 
-process.on("SIGTERM", () => progress.exit(0));
+process.on("SIGTERM", () => process.exit(0));
