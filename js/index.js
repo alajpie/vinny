@@ -22,7 +22,12 @@ bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const rclient = redis.createClient({
   host: process.env.VINNY_REDIS_HOST || "127.0.0.1",
-  db: process.env.NODE_ENV === "production" ? 0 : 1
+  port: parseInt(process.env.VINNY_REDIS_PORT) || 6379,
+  db: process.env.NODE_ENV === "production" ? 0 : 1,
+  retry_strategy: () => {
+    console.log("Redis connection failed... retrying in 2.5s");
+    return 2500;
+  }
 });
 
 const dclient = new Discord.Client();
@@ -942,6 +947,14 @@ function parse(msg) {
           });
         } else if (match[1] === "uncount") {
           rclient.del("counting-last");
+        } else if (match[1] === "redis") {
+          (async () => {
+            const pattern = crypto.randomBytes(4).toString("hex");
+            await rclient.setAsync("redis-test", pattern);
+            const returned = await rclient.getAsync("redis-test");
+            rclient.del("redis-test");
+            msg.channel.send(`pattern = ${pattern}\nreturned = ${returned}`);
+          })();
         }
       }
     }
