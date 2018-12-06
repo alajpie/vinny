@@ -553,7 +553,7 @@ function parse(msg) {
   }
   if (msg.guild && msg.guild.id === tier.mainGuild) {
     var match = m.match(
-      /(\bfag|\bretard|nigger|tranny|\bchink|wetback|kike|kulak|pollack|stinky)/
+      /(\bfag|\bretard|nigger|trann(y|ie)|\bchink|wetback|kike|kulak|pollack|stinky|dyke|spic(\b|s))/
     );
     if (match && msg.channel.id !== tier.edgyMemesChannel) {
       if (
