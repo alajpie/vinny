@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vinny
+  labels:
+    app: vinny
+spec:
+  clusterIP: None
+  selector:
+    app: vinny
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vinny
+spec:
+  serviceName: vinny
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vinny
+  template:
+    metadata:
+      labels:
+        app: vinny
+    spec:
+      containers:
+        - name: vinny
+          image: gcr.io/priv-224919/vinny
+          env:
+            - name: NODE_ENV
+              value: development
+        - name: redis
+          image: "redis:alpine"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          args: ["--appendonly", "yes"]
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Mi

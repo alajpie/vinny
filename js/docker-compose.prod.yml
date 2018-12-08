@@ -1,5 +1,0 @@
-version: "3"
-services:
-    vinny:
-        environment:
-            - NODE_ENV=production
