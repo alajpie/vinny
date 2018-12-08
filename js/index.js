@@ -13,6 +13,8 @@ const assert = require("assert");
 const { SHA3 } = require("sha3");
 const crypto = require("crypto");
 
+console.log(`Commit ${process.env.COMMIT || "unknown"}.`);
+
 console.log(
   `${process.env.NODE_ENV === "production" ? "Production" : "Dev"} tier.`
 );
@@ -1114,6 +1116,9 @@ function parse(msg) {
         .locale("fr")
         .humanize()
     );
+  }
+  if (m.includes(";commit")) {
+    msg.channel.send(process.env.COMMIT || "unknown");
   }
   function getRandomInt(min, max) {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random

@@ -9,4 +9,7 @@ RUN yarn install
 
 COPY . .
 
+ARG COMMIT
+ENV COMMIT $COMMIT
+
 CMD ["node", "index.js"]
