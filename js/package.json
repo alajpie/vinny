@@ -11,7 +11,7 @@
     "rss-parser": "^3.4.3",
     "sha3": "^2.0.0",
     "shell-exec": "^1.0.2",
-    "superagent": "^3.8.2",
+    "superagent": "^4.0.0",
     "superb": "^3.0.0",
     "twitter": "^1.7.1"
   }
