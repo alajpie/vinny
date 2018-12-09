@@ -171,10 +171,9 @@ dclient.on("ready", () => {
   });
 });
 
-dclient.on("error", () => {
-  dclient.channels
-    .get(tier.deptOfBotAffairsChannel)
-    .send("Discord made a fucky wucky and disconnected me >:(");
+dclient.on("error", e => {
+  console.log(e.stack);
+  dclient.channels.get(tier.deptOfBotAffairsChannel).send(e.stack.toString());
 });
 
 async function checkChannel(id) {
