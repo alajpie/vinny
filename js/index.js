@@ -375,8 +375,10 @@ function parse(msg) {
     if (match) {
       try {
         const result = eval(match[1]);
-        msg.channel.send(result).catch(() => {});
-      } catch (e) {}
+        msg.channel.send(result).catch(e => msg.channel.send(e.stack));
+      } catch (e) {
+	msg.channel.send(e.stack);
+      }
     }
     match = msg.content.match(/;s (.*)/i);
     if (match) {
