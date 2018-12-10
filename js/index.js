@@ -172,8 +172,8 @@ dclient.on("ready", () => {
 });
 
 dclient.on("error", e => {
-  console.log(e.stack);
-  dclient.channels.get(tier.deptOfBotAffairsChannel).send(e.stack.toString());
+  console.log(e);
+  dclient.channels.get(tier.deptOfBotAffairsChannel).send(e.toString());
 });
 
 async function checkChannel(id) {
