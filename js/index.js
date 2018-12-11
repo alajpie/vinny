@@ -130,7 +130,13 @@ const channels = [
   "UCBa659QWEk1AI4Tg--mrJ2A", // Tom Scott
   "UC8XjmAEDVZSCQjI150cb4QA", // Knowing Better
   "UCsXVk37bltHxD1rDPwtNM8Q", // Kurzgesagt
-  "UCepkun0sH16b-mqxBN22ogA" // Mexie
+  "UCepkun0sH16b-mqxBN22ogA", // Mexie
+  "UCVY0aIaw-V9GbWmlab4Z_dw", // Libertarian Socialist Rants
+  "UCrr7y8rEXb7_RiVniwvzk9w", // Thought Slime
+  "UCdQKvqmHKe_8fv4Rwe7ag9Q", // Jack Saint
+  "UC9-y-6csu5WGm29I7JiwpnA", // Computerphile
+  "UCoxcjq-8xIDTYp3uz647V5A", // Numberphile
+  "UClq42foiSgl7sSpLupnugGA" // DONG
 ]; // hug!
 
 dclient.on("ready", () => {
@@ -377,7 +383,7 @@ function parse(msg) {
         const result = eval(match[1]);
         msg.channel.send(result).catch(e => msg.channel.send(e.stack));
       } catch (e) {
-	msg.channel.send(e.stack);
+        msg.channel.send(e.stack);
       }
     }
     match = msg.content.match(/;s (.*)/i);
