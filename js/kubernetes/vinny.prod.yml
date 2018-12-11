@@ -1,17 +1,18 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: vinny
+  name: vinny-deployment
 spec:
-  serviceName: vinny
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: vinny
+      role: worker
   template:
     metadata:
       labels:
         app: vinny
+        role: worker
     spec:
       containers:
         - name: vinny
@@ -19,17 +20,3 @@ spec:
           env:
             - name: NODE_ENV
               value: production
-        - name: redis
-          image: "redis:alpine"
-          volumeMounts:
-            - name: data
-              mountPath: /data
-          args: ["--appendonly", "yes", "--aof-use-rdb-preamble", "yes"]
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 10Mi
