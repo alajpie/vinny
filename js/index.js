@@ -59,8 +59,8 @@ async function instanceUnlock() {
       const result = await rclient.setAsync(
         "instance-lock",
         instanceToken,
-        "EX",
-        1,
+        "PX",
+        300,
         "NX"
       );
       assert.ok(result);
@@ -69,7 +69,7 @@ async function instanceUnlock() {
     }
     instanceTimer = setInterval(() => {
       rclient
-        .evalshaAsync(extendScriptHash, 1, "instance-lock", instanceToken, 1000)
+        .evalshaAsync(extendScriptHash, 1, "instance-lock", instanceToken, 300)
         .then(x => {
           // ensure lock has been extended correctly
           if (!x) {
