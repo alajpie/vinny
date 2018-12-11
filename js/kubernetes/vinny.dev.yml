@@ -14,6 +14,22 @@ spec:
         app: vinny
         role: worker
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - vinny
+                    - key: role
+                      operator: In
+                      values:
+                        - worker
+                topologyKey: "kubernetes.io/hostname"
       containers:
         - name: vinny
           image: gcr.io/priv-224919/vinny
