@@ -23,14 +23,68 @@ const redis = require("redis");
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 const rclient = redis.createClient({
-  host: process.env.VINNY_REDIS_HOST || "127.0.0.1",
-  port: parseInt(process.env.VINNY_REDIS_PORT) || 6379,
-  db: process.env.NODE_ENV === "production" ? 0 : 1,
+  host: process.env.VINNY_REDIS_SERVICE_HOST || "127.0.0.1",
+  port: parseInt(process.env.VINNY_REDIS_SERVICE_PORT) || 6379,
   retry_strategy: () => {
-    console.log("Redis connection failed... retrying in 2.5s");
-    return 2500;
+    console.log("Redis connection failed... retrying in 1s");
+    return 1000;
   }
 });
+
+function delay(t, v) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve.bind(null, v), t);
+  });
+}
+
+const instanceToken = crypto.randomBytes(32).toString("hex");
+var instanceTimer, unlockScriptHash, extendScriptHash;
+
+async function instanceUnlock() {
+  clearInterval(instanceTimer);
+  return rclient.evalsha(unlockScriptHash, 1, "instance-lock", instanceToken);
+}
+
+(async () => {
+  unlockScriptHash = await rclient.scriptAsync(
+    "load",
+    'if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("DEL", KEYS[1]) else return 0 end'
+  );
+  extendScriptHash = await rclient.scriptAsync(
+    "load",
+    'if redis.call("GET", KEYS[1]) == ARGV[1] then return redis.call("PEXPIRE", KEYS[1], ARGV[2]) end; return 0'
+  );
+  async function instanceLock() {
+    try {
+      const result = await rclient.setAsync(
+        "instance-lock",
+        instanceToken,
+        "EX",
+        1,
+        "NX"
+      );
+      assert.ok(result);
+    } catch (e) {
+      return delay(100).then(instanceLock);
+    }
+    instanceTimer = setInterval(() => {
+      rclient
+        .evalshaAsync(extendScriptHash, 1, "instance-lock", instanceToken, 1000)
+        .then(x => {
+          // ensure lock has been extended correctly
+          if (!x) {
+            console.error("Failed to extend lock, quitting!");
+            finalise(1);
+          }
+        });
+    }, 100);
+  }
+
+  console.log("Trying to lock...");
+  await instanceLock();
+  console.log("Locked!");
+  dclient.login(process.env.VINNY_DISCORD_TOKEN);
+})();
 
 const dclient = new Discord.Client();
 const tclient = new Twitter({
@@ -1150,9 +1204,12 @@ function parse(msg) {
   }
 }
 
-dclient.login(process.env.VINNY_DISCORD_TOKEN);
-
 process.on("SIGTERM", () => {
   console.log("Quitting on SIGTERM.");
-  process.exit(0);
+  finalise(0);
 });
+
+async function finalise(code) {
+  Promise.all([rclient.quitAsync(), instanceUnlock(), dclient.destroy()]);
+  process.exit(code);
+}
