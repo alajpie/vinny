@@ -36,3 +36,10 @@ spec:
           env:
             - name: NODE_ENV
               value: production
+          livenessProbe:
+            exec:
+              command:
+                ["sh", "-c", "[ $(cat /tmp/alive) -gt $(($(date +%s) - 3)) ]"]
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            failureThreshold: 1
