@@ -12,6 +12,7 @@ const rss = new (require("rss-parser"))();
 const assert = require("assert");
 const { SHA3 } = require("sha3");
 const crypto = require("crypto");
+const fs = require("fs");
 
 console.log(`Commit ${process.env.COMMIT || "unknown"}.`);
 
@@ -30,6 +31,16 @@ const rclient = redis.createClient({
     return 1000;
   }
 });
+
+setInterval(async () => {
+  // Redis probe
+  const pattern = crypto.randomBytes(4).toString("hex");
+  await rclient.setAsync("redis-test", pattern);
+  const returned = await rclient.getAsync("redis-test");
+  if (returned === pattern) {
+    fs.writeFile("/tmp/alive", Math.floor(Date.now() / 1000), () => {});
+  }
+}, 100);
 
 function delay(t, v) {
   return new Promise(function(resolve) {
