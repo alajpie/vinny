@@ -450,6 +450,14 @@ dclient.on("message", msg => {
 });
 
 function parse(msg) {
+  if (msg.channel.id === tier.ephemeralChannel) {
+    const timeout = 10 * 60 * 1000;
+    const packed = `${msg.id}:${Date.now() + timeout}`;
+    rclient.sadd("ephemeral", packed);
+    setTimeout(() => {
+      msg.delete().then(rclient.srem("ephemeral", packed));
+    }, timeout);
+  }
   if (msg.author === dclient.user) return;
   const m = msg.content.toLowerCase();
   if (msg.author === dclient.users.get(tier.botAdmin)) {
@@ -793,14 +801,6 @@ function parse(msg) {
       });
     }
     rclient.sadd("r5k", stripped);
-    if (msg.channel.id === tier.ephemeralChannel) {
-      const timeout = 10 * 60 * 1000;
-      const packed = `${msg.id}:${Date.now() + timeout}`;
-      rclient.sadd("ephemeral", packed);
-      setTimeout(() => {
-        msg.delete().then(rclient.srem("ephemeral", packed));
-      }, timeout);
-    }
     if (m.includes(";points")) {
       rclient.zscoreAsync("points", msg.author.id).then(points => {
         if (points) {
