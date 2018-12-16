@@ -265,11 +265,6 @@ dclient.on("ready", () => {
   });
 });
 
-dclient.on("error", e => {
-  console.error(JSON.stringify(e));
-  dclient.channels.get(tier.deptOfBotAffairsChannel).send(JSON.stringify(e));
-});
-
 async function checkChannel(id) {
   const feed = await rss.parseURL(
     `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`
