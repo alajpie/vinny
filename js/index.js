@@ -119,6 +119,7 @@ const prodTier = {
   countingChannel: "517061962866229279",
   hashLowerChannel: "517489574780338187",
   russianRouletteChannel: "517792232821227520",
+  ephemeralChannel: "523666444613976075",
   nickMuseumChannel: "498572261746278441",
   edgyMemesChannel: "490036639473729547",
 
@@ -142,6 +143,7 @@ const devTier = {
   countingChannel: "517047271347585065",
   hashLowerChannel: "517485985882177563",
   russianRouletteChannel: "517784617684828162",
+  ephemeralChannel: "523645006486175744",
   nickMuseumChannel: "514132045744832523",
   edgyMemesChannel: "514124920947605515",
 
@@ -239,6 +241,27 @@ dclient.on("ready", () => {
     dclient.channels
       .get(tier.countingChannel)
       .setTopic(`Next number: ${x ? parseInt(x) : 0}`);
+  });
+  rclient.smembersAsync("ephemeral").then(x => {
+    x.forEach(async y => {
+      const [id, time] = y.split(":");
+      try {
+        const message = await dclient.channels
+          .get(tier.ephemeralChannel)
+          .fetchMessage(id);
+
+        setTimeout(
+          () =>
+            message
+              .delete()
+              .then(() => rclient.srem("ephemeral", y))
+              .catch(() => rclient.srem("ephemeral", y)),
+          time - Date.now()
+        );
+      } catch (e) {
+        rclient.srem("ephemeral", y);
+      }
+    });
   });
 });
 
@@ -775,6 +798,14 @@ function parse(msg) {
       });
     }
     rclient.sadd("r5k", stripped);
+    if (msg.channel.id === tier.ephemeralChannel) {
+      const timeout = 10 * 60 * 1000;
+      const packed = `${msg.id}:${Date.now() + timeout}`;
+      rclient.sadd("ephemeral", packed);
+      setTimeout(() => {
+        msg.delete().then(rclient.srem("ephemeral", packed));
+      }, timeout);
+    }
     if (m.includes(";points")) {
       rclient.zscoreAsync("points", msg.author.id).then(points => {
         if (points) {
