@@ -3,6 +3,7 @@ const yaml = require("js-yaml");
 const fs = require("promise-fs");
 const path = require("path");
 const glob = require("glob");
+const delve = require("dlv");
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
 async function main() {
@@ -40,31 +41,55 @@ async function initaliseDiscord(config, secrets, modules) {
 	const dclient = new discord.Client();
 
 	dclient.on("ready", x => {
-		debug(`Logged in as ${dclient.user.tag}`);
+		info(`Logged in as ${dclient.user.tag}`);
 	});
 
 	dclient.on("ready", () => {
 		for (let [name, mod] of Object.entries(modules)) {
-			mod.onReady(dclient);
+			if (typeof mod.onReady === "function") {
+				const moduleConfig = delve(
+					config,
+					["servers", obj.guild.id, "moduleConfig", name],
+					{}
+				);
+				mod.onReady({ dclient, config: moduleConfig });
+			}
 		}
 	});
 
-	dclient.on("messageUpdate", (prev, next) => {
+	function callModules(obj, event, args) {
+		const serverModules = delve(
+			config,
+			["servers", obj.guild.id, "modules"],
+			[]
+		);
 		for (let [name, mod] of Object.entries(modules)) {
-			mod.onEdit(dclient, prev, next);
+			if (
+				serverModules.includes(name) &&
+				typeof mod[event] === "function"
+			) {
+				const moduleConfig = delve(
+					config,
+					["servers", obj.guild.id, "moduleConfig", name],
+					{}
+				);
+				mod[event](
+					Object.assign(args, { dclient, config: moduleConfig })
+				);
+			}
 		}
+	}
+
+	dclient.on("messageUpdate", (prev, next) => {
+		callModules(next, "onEdit", { prev, next });
 	});
 
 	dclient.on("guildMemberUpdate", (prev, next) => {
-		for (let [name, mod] of Object.entries(modules)) {
-			mod.onMemberChange(dclient, prev, next);
-		}
+		callModules(next, "onMemberEdit", { prev, next });
 	});
 
 	dclient.on("message", msg => {
-		for (let [name, mod] of Object.entries(modules)) {
-			mod.onMessage(dclient, msg);
-		}
+		callModules(msg, "onMessage", { msg });
 	});
 
 	dclient.login(secrets.discordToken);
