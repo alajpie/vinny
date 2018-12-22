@@ -11,7 +11,7 @@ function prelog(items) {
 			if (typeof x === "string") {
 				return x;
 			} else {
-				return util.inspect(x, { depth: Infinity });
+				return util.inspect(x, { depth: 10 });
 			}
 		})
 		.join(" ");
