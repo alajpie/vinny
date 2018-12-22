@@ -4,7 +4,7 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 
 const argsRegex = /"(.*?)"|'(.*?)'|(\S+)/g;
 
-const commandPaths = glob.sync(path.join(__dirname, "../commands/*.js"));
+const commandPaths = glob.sync(path.join(__dirname, "../commands/**/*.js"));
 const commands = {};
 commandPaths.forEach(x => {
 	Object.assign(commands, require(path.resolve(x)));
