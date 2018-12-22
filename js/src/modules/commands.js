@@ -32,7 +32,9 @@ module.exports = {
 				}
 				debug({ command, prefix, args });
 				if (typeof commands[command] === "function") {
-					const result = commands[command](args, {
+					const result = commands[command]({
+						args,
+						rawArgs,
 						dclient,
 						msg,
 						config: config[command] || {}
