@@ -16,12 +16,22 @@ async function main() {
 
 	debug("Loading config");
 	assert(!!process.env.CONFIG, "valid config path");
+	try {
+		await fs.access(process.env.CONFIG, fs.constants.R_OK);
+	} catch (e) {
+		fatal("unreadable config path,", e);
+	}
 	const configString = await fs.readFile(process.env.CONFIG);
 	const config = yaml.safeLoad(configString);
 	debug("Config loaded:", config);
 
 	debug("Loading secrets");
 	assert(!!process.env.SECRETS, "valid secrets path");
+	try {
+		await fs.access(process.env.SECRETS, fs.constants.R_OK);
+	} catch (e) {
+		fatal("unreadable secrets path,", e);
+	}
 	const secretsString = await fs.readFile(process.env.SECRETS);
 	const secrets = yaml.safeLoad(secretsString);
 	debug("Secrets loaded");
