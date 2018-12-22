@@ -26,9 +26,13 @@ module.exports = {
 						: modifier > 0
 						? " + " + modifier
 						: " - " + -modifier;
-				msg.channel.send(
-					`[${rolls.join(", ")}]${modifierDisplay} = ${result}`
-				);
+				if (dice > 1 || modifierDisplay) {
+					msg.channel.send(
+						`[${rolls.join(", ")}]${modifierDisplay} = ${result}`
+					);
+				} else {
+					msg.channel.send(result);
+				}
 			}
 		});
 	}
