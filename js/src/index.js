@@ -37,7 +37,7 @@ async function main() {
 	debug("Secrets loaded");
 
 	debug("Loading modules");
-	const modulePaths = glob.sync(path.join(__dirname, "modules/*.js"));
+	const modulePaths = glob.sync(path.join(__dirname, "modules/**/*.js"));
 	const modules = {};
 	modulePaths.forEach(x => {
 		modules[path.parse(x).name] = require(path.resolve(x));
