@@ -14,7 +14,7 @@ module.exports = {
 	onMessage: function({ config, dclient, msg }) {
 		if (msg.author.id === dclient.user.id) return;
 		const prefixes = config.prefixes || ["'", ";"];
-		prefixes.forEach(prefix => {
+		prefixes.forEach(async prefix => {
 			const commandRegex = new RegExp(
 				`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
 				"g"
@@ -32,7 +32,7 @@ module.exports = {
 				}
 				debug({ command, prefix, args });
 				if (typeof commands[command] === "function") {
-					const result = commands[command]({
+					const result = await commands[command]({
 						args,
 						rawArgs,
 						dclient,
