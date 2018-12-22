@@ -4,8 +4,11 @@
         "chalk": "^2.4.1",
         "discord.js": "^11.4.2",
         "dlv": "^1.1.2",
+        "fullwidth": "^1.2.0",
         "glob": "^7.1.3",
         "js-yaml": "^3.12.0",
-        "promise-fs": "^2.0.1"
+        "promise-fs": "^2.0.1",
+        "superagent": "^4.0.0",
+        "superb": "^3.0.0"
     }
 }
