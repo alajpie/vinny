@@ -4,7 +4,7 @@ const fs = require("promise-fs");
 const path = require("path");
 const glob = require("glob");
 const delve = require("dlv");
-const sqlite = require("sqlite");
+const sqlite = require("better-sqlite3");
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
 async function main() {
@@ -17,9 +17,9 @@ async function main() {
 
 	debug("Opening SQLite database");
 	assert(!!process.env.SQLITE, "valid SQLite path");
-	const db = await sqlite.open(process.env.SQLITE, { Promise, cached: true });
+	const db = sqlite(process.env.SQLITE);
 	process.on("SIGTERM", async () => {
-		await db.close();
+		db.close();
 	});
 	debug("SQLite opened");
 
