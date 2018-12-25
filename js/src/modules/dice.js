@@ -1,5 +1,7 @@
 module.exports = {
 	init: function({ config }) {
+		const prefixes = config.prefixes || ["'", ";"];
+
 		return {
 			onMessage: function({ msg }) {
 				function getRandomInt(min, max) {
@@ -8,7 +10,8 @@ module.exports = {
 					max = Math.floor(max);
 					return Math.floor(Math.random() * (max - min)) + min; // The maximum is exclusive and the minimum is inclusive
 				}
-				config.prefixes.forEach(prefix => {
+
+				prefixes.forEach(prefix => {
 					const diceRegex = new RegExp(
 						prefix +
 							"([1-9][0-9]|[1-9])?d(100|[1-9][0-9]|[2-9])((?:|\\+|-)(?:[1-9][0-9]|[1-9]))?"
