@@ -4,6 +4,7 @@ const fs = require("promise-fs");
 const path = require("path");
 const glob = require("glob");
 const delve = require("dlv");
+const sqlite = require("sqlite");
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
 async function main() {
@@ -13,6 +14,14 @@ async function main() {
 	} else {
 		info("Dev tier");
 	}
+
+	debug("Opening SQLite database");
+	assert(!!process.env.SQLITE, "valid SQLite path");
+	const db = await sqlite.open(process.env.SQLITE, { Promise, cached: true });
+	process.on("SIGTERM", async () => {
+		await db.close();
+	});
+	debug("SQLite opened");
 
 	debug("Loading config");
 	assert(!!process.env.CONFIG, "valid config path");
@@ -46,22 +55,28 @@ async function main() {
 	});
 	info("Modules loaded:", modules.map(x => x.name));
 	const moduleInstances = {};
+	const promises = [];
 	for (let [serverId, serverConfig] of Object.entries(config.servers)) {
 		moduleInstances[serverId] = [];
-		modules.forEach(mod => {
-			if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
-				moduleInstances[serverId].push(
-					mod.init({
-						config: delve(
-							serverConfig,
-							["moduleConfig", mod.name],
-							{}
-						)
-					})
-				);
-			}
-		});
+		promises.push(
+			...modules.map(async mod => {
+				if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
+					moduleInstances[serverId].push(
+						await mod.init({
+							config: delve(
+								serverConfig,
+								["moduleConfig", mod.name],
+								{}
+							),
+							db,
+							serverId
+						})
+					);
+				}
+			})
+		);
 	}
+	await Promise.all(promises);
 
 	await initaliseDiscord(config, secrets, moduleInstances);
 }
