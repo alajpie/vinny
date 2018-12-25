@@ -1,2 +1,2 @@
 const shrug = () => "¯\\_(ツ)_/¯";
-module.exports = { shrug, shruggie: shrug };
+module.exports = { init: () => ({ shrug, shruggie: shrug }) };

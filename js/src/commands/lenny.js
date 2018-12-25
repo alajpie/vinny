@@ -1,1 +1,1 @@
-module.exports = { lenny: () => "( ͡° ͜ʖ ͡°)" };
+module.exports = { init: () => ({ lenny: () => "( ͡° ͜ʖ ͡°)" }) };

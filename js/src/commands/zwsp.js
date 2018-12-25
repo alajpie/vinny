@@ -1,1 +1,5 @@
-module.exports = { zwsp: () => "\u200b" };
+module.exports = {
+	init: () => ({
+		zwsp: () => "\u200b"
+	})
+};

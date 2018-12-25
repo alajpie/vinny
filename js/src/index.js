@@ -38,16 +38,35 @@ async function main() {
 
 	debug("Loading modules");
 	const modulePaths = glob.sync(path.join(__dirname, "modules/**/*.js"));
-	const modules = {};
+	const modules = [];
 	modulePaths.forEach(x => {
-		modules[path.parse(x).name] = require(path.resolve(x));
+		const mod = require(path.resolve(x));
+		mod.name = mod.name || path.parse(x).name;
+		modules.push(mod);
 	});
-	info("Modules loaded:", Object.keys(modules));
+	info("Modules loaded:", modules.map(x => x.name));
+	const moduleInstances = {};
+	for (let [serverId, serverConfig] of Object.entries(config.servers)) {
+		moduleInstances[serverId] = [];
+		modules.forEach(mod => {
+			if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
+				moduleInstances[serverId].push(
+					mod.init({
+						config: delve(
+							serverConfig,
+							["moduleConfig", mod.name],
+							{}
+						)
+					})
+				);
+			}
+		});
+	}
 
-	await initaliseDiscord(config, secrets, modules);
+	await initaliseDiscord(config, secrets, moduleInstances);
 }
 
-async function initaliseDiscord(config, secrets, modules) {
+async function initaliseDiscord(config, secrets, moduleInstances) {
 	const dclient = new discord.Client();
 
 	dclient.on("ready", x => {
@@ -55,39 +74,21 @@ async function initaliseDiscord(config, secrets, modules) {
 	});
 
 	dclient.on("ready", () => {
-		for (let [name, mod] of Object.entries(modules)) {
-			if (typeof mod.onReady === "function") {
-				const moduleConfig = delve(
-					config,
-					["servers", obj.guild.id, "moduleConfig", name],
-					{}
-				);
-				mod.onReady({ dclient, config: moduleConfig });
-			}
+		for (let [server, mods] of Object.entries(moduleInstances)) {
+			mods.forEach(x => {
+				if (typeof x.onReady === "function") {
+					x.onReady({ dclient });
+				}
+			});
 		}
 	});
 
 	function callModules(obj, event, args) {
-		const serverModules = delve(
-			config,
-			["servers", obj.guild.id, "modules"],
-			[]
-		);
-		for (let [name, mod] of Object.entries(modules)) {
-			if (
-				serverModules.includes(name) &&
-				typeof mod[event] === "function"
-			) {
-				const moduleConfig = delve(
-					config,
-					["servers", obj.guild.id, "moduleConfig", name],
-					{}
-				);
-				mod[event](
-					Object.assign(args, { dclient, config: moduleConfig })
-				);
+		moduleInstances[obj.guild.id].forEach(x => {
+			if (typeof x[event] === "function") {
+				x[event](Object.assign(args, { dclient }));
 			}
-		}
+		});
 	}
 
 	dclient.on("messageUpdate", (prev, next) => {

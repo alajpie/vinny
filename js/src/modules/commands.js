@@ -5,45 +5,57 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 const argsRegex = /"(.*?)"|'(.*?)'|(\S+)/g;
 
 const commandPaths = glob.sync(path.join(__dirname, "../commands/**/*.js"));
-const commands = {};
+const commandPacks = [];
 commandPaths.forEach(x => {
-	Object.assign(commands, require(path.resolve(x)));
+	const commandPack = require(path.resolve(x));
+	commandPacks.push(commandPack);
+	commandPack.name = commandPack.name || path.parse(x).name;
 });
+debug("Commands loaded:", commandPacks.map(x => x.name));
 
 module.exports = {
-	onMessage: function({ config, dclient, msg }) {
-		if (msg.author.id === dclient.user.id) return;
-		const prefixes = config.prefixes || ["'", ";"];
-		prefixes.forEach(async prefix => {
-			const commandRegex = new RegExp(
-				`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
-				"g"
+	init: function({ config }) {
+		let commands = {};
+		commandPacks.forEach(x => {
+			commands = Object.assign(
+				commands,
+				x.init({ config: config[x.name] || {} })
 			);
-			let commandMatch, argsMatch;
-			while (
-				(commandMatch = commandRegex.exec(
-					msg.content.replace(/\n/g, " ")
-				))
-			) {
-				const [_, command, rawArgs] = commandMatch;
-				const args = [];
-				while ((argsMatch = argsRegex.exec(rawArgs))) {
-					args.push(argsMatch.slice(1).find(x => x));
-				}
-				debug({ command, prefix, args });
-				if (typeof commands[command] === "function") {
-					const result = await commands[command]({
-						args,
-						rawArgs,
-						dclient,
-						msg,
-						config: config[command] || {}
-					});
-					if (result) {
-						msg.channel.send(result);
-					}
-				}
-			}
 		});
+
+		return {
+			onMessage: function({ dclient, msg }) {
+				if (msg.author.id === dclient.user.id) return;
+				const prefixes = config.prefixes || ["'", ";"];
+				prefixes.forEach(async prefix => {
+					const commandRegex = new RegExp(
+						`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
+						"g"
+					);
+					let commandMatch, argsMatch;
+					while (
+						(commandMatch = commandRegex.exec(msg.content.replace(/\n/g, " ")))
+					) {
+						const [_, command, rawArgs] = commandMatch;
+						const args = [];
+						while ((argsMatch = argsRegex.exec(rawArgs))) {
+							args.push(argsMatch.slice(1).find(x => x));
+						}
+						debug({ command, prefix, args });
+						if (typeof commands[command] === "function") {
+							const result = await commands[command]({
+								args,
+								rawArgs,
+								dclient,
+								msg
+							});
+							if (result) {
+								msg.channel.send(result);
+							}
+						}
+					}
+				});
+			}
+		};
 	}
 };

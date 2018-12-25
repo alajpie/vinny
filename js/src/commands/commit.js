@@ -1,1 +1,3 @@
-module.exports = { commit: () => process.env.COMMIT || "unknown" };
+module.exports = {
+	init: () => ({ commit: () => process.env.COMMIT || "unknown" })
+};

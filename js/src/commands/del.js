@@ -1,5 +1,7 @@
 module.exports = {
-	del: ({ msg }) => {
-		msg.delete(500);
-	}
+	init: () => ({
+		del: ({ msg }) => {
+			msg.delete(500);
+		}
+	})
 };
