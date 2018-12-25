@@ -17,10 +17,12 @@ module.exports = {
 	init: function({ config }) {
 		let commands = {};
 		commandPacks.forEach(x => {
-			commands = Object.assign(
-				commands,
-				x.init({ config: config[x.name] || {} })
-			);
+			if (!config.blacklist || !config.blacklist.includes(x.name)) {
+				commands = Object.assign(
+					commands,
+					x.init({ config: config[x.name] || {} })
+				);
+			}
 		});
 
 		return {
