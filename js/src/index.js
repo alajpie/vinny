@@ -84,11 +84,14 @@ async function initaliseDiscord(config, secrets, moduleInstances) {
 	});
 
 	function callModules(obj, event, args) {
-		moduleInstances[obj.guild.id].forEach(x => {
-			if (typeof x[event] === "function") {
-				x[event](Object.assign(args, { dclient }));
-			}
-		});
+		if (moduleInstances.hasOwnProperty(obj.guild.id)) {
+			// if we're handling this server
+			moduleInstances[obj.guild.id].forEach(x => {
+				if (typeof x[event] === "function") {
+					x[event](Object.assign(args, { dclient }));
+				}
+			});
+		}
 	}
 
 	dclient.on("messageUpdate", (prev, next) => {
