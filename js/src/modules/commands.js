@@ -24,11 +24,11 @@ module.exports = {
 				);
 			}
 		});
+		const prefixes = config.prefixes || ["'", ";"];
 
 		return {
 			onMessage: function({ dclient, msg }) {
 				if (msg.author.id === dclient.user.id) return;
-				const prefixes = config.prefixes || ["'", ";"];
 				prefixes.forEach(async prefix => {
 					const commandRegex = new RegExp(
 						`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
