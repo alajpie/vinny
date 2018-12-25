@@ -1,6 +1,7 @@
 {
     "license": "BSD-3-Clause",
     "dependencies": {
+        "better-sqlite3": "^5.2.1",
         "chalk": "^2.4.1",
         "discord.js": "^11.4.2",
         "dlv": "^1.1.2",
@@ -8,7 +9,6 @@
         "glob": "^7.1.3",
         "js-yaml": "^3.12.0",
         "promise-fs": "^2.0.1",
-        "sqlite": "^3.0.0",
         "superagent": "^4.0.0",
         "superb": "^3.0.0"
     }
