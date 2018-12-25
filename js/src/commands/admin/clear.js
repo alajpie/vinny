@@ -43,5 +43,6 @@ module.exports = {
 			await Promise.all(promises);
 			return;
 		}
-	})
+	}),
+	canExecute: ({ msg }) => msg.member.hasPermission("MANAGE_MESSAGES")
 };
