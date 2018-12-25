@@ -7,5 +7,6 @@ module.exports = {
 				return "no";
 			}
 		}
-	})
+	}),
+	canExecute: ({ msg }) => msg.member.hasPermission("MANAGE_CHANNELS")
 };

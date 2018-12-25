@@ -14,5 +14,6 @@ module.exports = {
 			await role.delete();
 			return "Deleted!";
 		}
-	})
+	}),
+	canExecute: ({ msg }) => msg.member.hasPermission("MANAGE_ROLES")
 };

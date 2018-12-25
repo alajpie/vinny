@@ -42,7 +42,23 @@ module.exports = {
 							args.push(argsMatch.slice(1).find(x => x));
 						}
 						debug({ command, prefix, args });
-						if (typeof commands[command] === "function") {
+						if (command === "help") {
+							const executableCommands = [];
+							commandPacks.forEach(x => {
+								if (
+									typeof x.canExecute !== "function" ||
+									x.canExecute({ msg })
+								) {
+									// causes side effects if .init() is impure, TODO add .commands property?
+									executableCommands.push(Object.keys(x.init({ config })));
+								}
+							});
+							msg.channel.send(
+								`Available commands: ${executableCommands
+									.map(x => `[${x.join(", ")}]`)
+									.join(", ")}`
+							);
+						} else if (typeof commands[command] === "function") {
 							const result = await commands[command]({
 								args,
 								rawArgs,
