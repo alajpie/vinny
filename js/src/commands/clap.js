@@ -1,3 +1,5 @@
 module.exports = {
-	clap: ({ args }) => args.join("👏")
+	init: () => ({
+		clap: ({ args }) => args.join("👏")
+	})
 };

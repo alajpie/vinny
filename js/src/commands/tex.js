@@ -18,4 +18,4 @@ const tex = white => {
 		});
 };
 
-module.exports = { tex: tex(false), whitex: tex(true) };
+module.exports = { init: () => ({ tex: tex(false), whitex: tex(true) }) };
