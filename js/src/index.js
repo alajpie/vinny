@@ -23,6 +23,7 @@ async function main() {
 	});
 	debug("SQLite opened");
 	db.pragma("journal_mode = WAL");
+	db.pragma("synchronous = NORMAL");
 	debug("WAL mode set");
 
 	debug("Loading config");
