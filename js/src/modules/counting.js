@@ -33,21 +33,23 @@ module.exports = {
 			onMessage: function({ msg }) {
 				if (msg.channel.id !== config.channel) return;
 				if (msg.type === "PINS_ADD") return;
-				const last = getLastPrepared.get().userId;
-				debug({ last });
-				if (msg.author.id === last) {
-					msg.delete(500);
-					return;
-				}
-				const count = getCountPrepared.get().count;
-				debug({ count });
-				if (parseInt(msg.content) !== count) {
-					msg.delete(500);
-					return;
-				}
-				incrementCountPrepared.run();
-				updateLastPrepared.run(msg.author.id, serverId);
-				msg.channel.setTopic(`Next number: ${count + 1}`);
+				db.transaction(() => {
+					const last = getLastPrepared.get().userId;
+					debug({ last });
+					if (msg.author.id === last) {
+						msg.delete(500);
+						return;
+					}
+					const count = getCountPrepared.get().count;
+					debug({ count });
+					if (msg.content !== count.toString()) {
+						msg.delete(500);
+						return;
+					}
+					incrementCountPrepared.run();
+					updateLastPrepared.run(msg.author.id, serverId);
+					msg.channel.setTopic(`Next number: ${count + 1}`);
+				})();
 			},
 			onEdit: function({ prev, next }) {
 				if (next.channel.id !== config.channel) return;
