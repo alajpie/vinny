@@ -50,8 +50,9 @@ module.exports = {
 				msg.channel.setTopic(`Next number: ${count + 1}`);
 			},
 			onEdit: function({ prev, next }) {
+				if (next.channel.id !== config.channel) return;
 				if (prev.content === next.content) return;
-				msg.delete();
+				next.delete();
 			}
 		};
 	}
