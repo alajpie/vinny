@@ -6,7 +6,9 @@ function strip(msg) {
 
 module.exports = {
 	init: function({ config, db }) {
-		db.exec("CREATE TABLE IF NOT EXISTS r5k (message TEXT PRIMARY KEY)");
+		db.exec(
+			"CREATE TABLE IF NOT EXISTS r5k (message TEXT PRIMARY KEY) WITHOUT ROWID"
+		);
 		const existsPrepared = db.prepare(
 			"SELECT 1 FROM r5k WHERE message = ?"
 		);
