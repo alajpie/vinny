@@ -30,6 +30,7 @@ module.exports = {
 		return {
 			onMessage: function({ msg }) {
 				if (msg.channel.id !== config.channel) return;
+				if (msg.type === "PINS_ADD") return;
 				const last = getLastPrepared.get().userId;
 				debug({ last });
 				if (msg.author.id === last) {

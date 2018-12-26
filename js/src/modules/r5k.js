@@ -16,6 +16,7 @@ module.exports = {
 		function check(msg, dclient) {
 			if (msg.channel.id !== config.channel) return;
 			if (msg.author.id === dclient.user.id) return;
+			if (msg.type === "PINS_ADD") return;
 			const stripped = strip(msg);
 			const exists = existsPrepared.get(stripped);
 			debug({ stripped, exists: !!exists });
