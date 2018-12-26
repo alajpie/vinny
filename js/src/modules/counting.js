@@ -2,29 +2,31 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 
 module.exports = {
 	init: async function({ config, db, serverId }) {
-		db.exec(
+		db.prepare(
 			"CREATE TABLE IF NOT EXISTS counting_count (id INTEGER PRIMARY KEY, serverId TEXT, count INTEGER)"
-		);
-		db.exec(
+		).run();
+		db.prepare(
 			"CREATE TABLE IF NOT EXISTS counting_last (id INTEGER PRIMARY KEY, serverId TEXT, userId TEXT)"
-		);
-		db.exec(
-			`INSERT INTO counting_count (serverId, count) SELECT ${serverId}, 0 WHERE NOT EXISTS (SELECT 1 FROM counting_count WHERE serverId = ${serverId})`
-		);
-		db.exec(
-			`INSERT INTO counting_last (serverId, userId) SELECT ${serverId}, null WHERE NOT EXISTS (SELECT 1 FROM counting_last WHERE serverId = ${serverId})`
-		);
-		const getCountPrepared = db.prepare(
-			`SELECT count FROM counting_count WHERE serverId = ${serverId}`
-		);
-		const getLastPrepared = db.prepare(
-			`SELECT userId FROM counting_last WHERE serverId = ${serverId}`
-		);
-		const incrementCountPrepared = db.prepare(
-			`UPDATE counting_count SET count = count + 1 WHERE serverId = ${serverId}`
-		);
+		).run();
+		db.prepare(
+			"INSERT INTO counting_count (serverId, count) SELECT ?, 0 WHERE NOT EXISTS (SELECT 1 FROM counting_count WHERE serverId = ?)"
+		).run(serverId, serverId);
+		db.prepare(
+			"INSERT INTO counting_last (serverId, userId) SELECT ?, null WHERE NOT EXISTS (SELECT 1 FROM counting_last WHERE serverId = ?)"
+		).run(serverId, serverId);
+		const getCountPrepared = db
+			.prepare("SELECT count FROM counting_count WHERE serverId = ?")
+			.bind(serverId);
+		const getLastPrepared = db
+			.prepare("SELECT userId FROM counting_last WHERE serverId = ?")
+			.bind(serverId);
+		const incrementCountPrepared = db
+			.prepare(
+				"UPDATE counting_count SET count = count + 1 WHERE serverId = ?"
+			)
+			.bind(serverId);
 		const updateLastPrepared = db.prepare(
-			`UPDATE counting_last SET userId = ? WHERE serverId = ${serverId}`
+			"UPDATE counting_last SET userId = ? WHERE serverId = ?"
 		);
 
 		return {
@@ -44,7 +46,7 @@ module.exports = {
 					return;
 				}
 				incrementCountPrepared.run();
-				updateLastPrepared.run(msg.author.id);
+				updateLastPrepared.run(msg.author.id, serverId);
 				msg.channel.setTopic(`Next number: ${count + 1}`);
 			},
 			onEdit: function({ prev, next }) {
