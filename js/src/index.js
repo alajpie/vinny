@@ -22,6 +22,8 @@ async function main() {
 		db.close();
 	});
 	debug("SQLite opened");
+	db.pragma("journal_mode = WAL");
+	debug("WAL mode set");
 
 	debug("Loading config");
 	assert(!!process.env.CONFIG, "valid config path");
