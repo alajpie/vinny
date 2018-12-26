@@ -3,10 +3,10 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 module.exports = {
 	init: async function({ config, db, serverId }) {
 		db.exec(
-			"CREATE TABLE IF NOT EXISTS counting_count (id INTEGER PRIMARY KEY AUTOINCREMENT, serverId TEXT, count INTEGER)"
+			"CREATE TABLE IF NOT EXISTS counting_count (id INTEGER PRIMARY KEY, serverId TEXT, count INTEGER)"
 		);
 		db.exec(
-			"CREATE TABLE IF NOT EXISTS counting_last (id INTEGER PRIMARY KEY AUTOINCREMENT, serverId TEXT, userId TEXT)"
+			"CREATE TABLE IF NOT EXISTS counting_last (id INTEGER PRIMARY KEY, serverId TEXT, userId TEXT)"
 		);
 		db.exec(
 			`INSERT INTO counting_count (serverId, count) SELECT ${serverId}, 0 WHERE NOT EXISTS (SELECT 1 FROM counting_count WHERE serverId = ${serverId})`
