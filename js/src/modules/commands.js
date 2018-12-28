@@ -40,8 +40,10 @@ module.exports = {
 					) {
 						const [_, command, rawArgs] = commandMatch;
 						const args = [];
-						while ((argsMatch = argsRegex.exec(rawArgs))) {
-							args.push(argsMatch.slice(1).find(x => x));
+						if (rawArgs !== undefined) {
+							while ((argsMatch = argsRegex.exec(rawArgs))) {
+								args.push(argsMatch.slice(1).find(x => x));
+							}
 						}
 						debug({ command, prefix, args });
 						if (command === "help") {
