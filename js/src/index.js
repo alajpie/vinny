@@ -25,6 +25,8 @@ async function main() {
 	db.pragma("journal_mode = WAL");
 	db.pragma("synchronous = NORMAL");
 	debug("WAL mode set");
+	db.pragma("foreign_keys = ON");
+	debug("Foreign key validation enabled");
 
 	debug("Loading config");
 	assert(!!process.env.CONFIG, "valid config path");
@@ -66,11 +68,7 @@ async function main() {
 				if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
 					moduleInstances[serverId].push(
 						await mod.init({
-							config: delve(
-								serverConfig,
-								["moduleConfig", mod.name],
-								{}
-							),
+							config: delve(serverConfig, ["moduleConfig", mod.name], {}),
 							db,
 							serverId
 						})
