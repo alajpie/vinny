@@ -9,12 +9,8 @@ module.exports = {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS r5k (message TEXT PRIMARY KEY) WITHOUT ROWID"
 		).run();
-		const existsPrepared = db.prepare(
-			"SELECT 1 FROM r5k WHERE message = ?"
-		);
-		const insertPrepared = db.prepare(
-			"INSERT INTO r5k (message) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM r5k WHERE message = ?)"
-		);
+		const existsPrepared = db.prepare("SELECT 1 FROM r5k WHERE message = ?");
+		const insertPrepared = db.prepare("INSERT INTO r5k (message) VALUES (?)");
 		function check(msg, dclient) {
 			if (msg.author.id === dclient.user.id) return;
 			if (msg.type === "PINS_ADD") return;
@@ -27,8 +23,8 @@ module.exports = {
 					dclient.channels
 						.get(config.failChannel)
 						.send(`${msg.author.tag}: ${msg.content}`);
-				} else {
-					insertPrepared.run([stripped, stripped]);
+				} else if (!exists) {
+					insertPrepared.run(stripped);
 				}
 			})();
 		}
