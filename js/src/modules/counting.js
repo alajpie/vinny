@@ -3,17 +3,17 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 module.exports = {
 	init: async function({ config, db, serverId }) {
 		db.prepare(
-			"CREATE TABLE IF NOT EXISTS counting_count (id INTEGER PRIMARY KEY, serverId TEXT, count INTEGER)"
+			"CREATE TABLE IF NOT EXISTS counting_count (serverId TEXT, count INTEGER, UNIQUE (serverId))"
 		).run();
 		db.prepare(
-			"CREATE TABLE IF NOT EXISTS counting_last (id INTEGER PRIMARY KEY, serverId TEXT, userId TEXT)"
+			"CREATE TABLE IF NOT EXISTS counting_last (serverId TEXT, userId TEXT, UNIQUE (serverId))"
 		).run();
 		db.prepare(
-			"INSERT INTO counting_count (serverId, count) SELECT ?, 0 WHERE NOT EXISTS (SELECT 1 FROM counting_count WHERE serverId = ?)"
-		).run(serverId, serverId);
+			"INSERT INTO counting_count (serverId, count) VALUES (?, 0) ON CONFLICT (serverId) DO NOTHING"
+		).run(serverId);
 		db.prepare(
-			"INSERT INTO counting_last (serverId, userId) SELECT ?, null WHERE NOT EXISTS (SELECT 1 FROM counting_last WHERE serverId = ?)"
-		).run(serverId, serverId);
+			"INSERT INTO counting_last (serverId, userId) VALUES (?, null) ON CONFLICT (serverId) DO NOTHING"
+		).run(serverId);
 		const getCountPrepared = db
 			.prepare("SELECT count FROM counting_count WHERE serverId = ?")
 			.bind(serverId);
@@ -21,9 +21,7 @@ module.exports = {
 			.prepare("SELECT userId FROM counting_last WHERE serverId = ?")
 			.bind(serverId);
 		const incrementCountPrepared = db
-			.prepare(
-				"UPDATE counting_count SET count = count + 1 WHERE serverId = ?"
-			)
+			.prepare("UPDATE counting_count SET count = count + 1 WHERE serverId = ?")
 			.bind(serverId);
 		const updateLastPrepared = db.prepare(
 			"UPDATE counting_last SET userId = ? WHERE serverId = ?"
