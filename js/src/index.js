@@ -8,7 +8,7 @@ const sqlite = require("better-sqlite3");
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
 process.on("unhandledRejection", e => {
-	fatal(e);
+	error(e);
 });
 
 async function main() {
