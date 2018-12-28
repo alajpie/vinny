@@ -7,6 +7,10 @@ const delve = require("dlv");
 const sqlite = require("better-sqlite3");
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
+process.on("unhandledRejection", e => {
+	fatal(e);
+});
+
 async function main() {
 	info(`Commit ${process.env.COMMIT || "unknown"}`);
 	if (process.env.NODE_ENV === "production") {
