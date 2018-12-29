@@ -65,7 +65,7 @@ module.exports = {
 						} else if (typeof commands[command] === "function") {
 							const result = await commands[command]({
 								args,
-								rawArgs,
+								rawArgs: rawArgs || "",
 								dclient,
 								msg
 							});
