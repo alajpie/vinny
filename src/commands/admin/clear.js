@@ -33,7 +33,7 @@ module.exports = {
 				b4 = messages[messages.length - 1].id;
 				for (var x of messages) {
 					i--;
-					promises.push(x.delete());
+					promises.push(x.delete().catch(() => {}));
 					if (x.id === limit || i <= 0) {
 						await Promise.all(promises);
 						return;
