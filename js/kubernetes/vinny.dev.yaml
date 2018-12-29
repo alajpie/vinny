@@ -1,45 +1,31 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: vinny-deployment
+    name: vinny
 spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: vinny
-      role: worker
-  template:
-    metadata:
-      labels:
-        app: vinny
-        role: worker
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 50
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                        - vinny
-                    - key: role
-                      operator: In
-                      values:
-                        - worker
-                topologyKey: "kubernetes.io/hostname"
-      containers:
-        - name: vinny
-          image: gcr.io/priv-224919/vinny
-          env:
-            - name: NODE_ENV
-              value: development
-          livenessProbe:
-            exec:
-              command:
-                ["sh", "-c", "[ $(cat /tmp/alive) -gt $(($(date +%s) - 3)) ]"]
-            initialDelaySeconds: 5
-            periodSeconds: 1
-            failureThreshold: 1
+    replicas: 1
+    selector:
+        matchLabels:
+            app: vinny
+    template:
+        metadata:
+            labels:
+                app: vinny
+        spec:
+            containers:
+                - name: vinny
+                  image: gcr.io/priv-224919/vinny
+                  env:
+                      - name: NODE_ENV
+                        value: development
+                  volumeMounts:
+                      - name: data
+                        mountPath: /data
+    volumeClaimTemplates:
+        - metadata:
+              name: data
+          spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                  requests:
+                      storage: 50Mi
