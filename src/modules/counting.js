@@ -21,9 +21,7 @@ module.exports = {
 			.prepare("SELECT userId FROM counting_last WHERE serverId = ?")
 			.bind(serverId);
 		const incrementCountPrepared = db
-			.prepare(
-				"UPDATE counting_count SET count = count + 1 WHERE serverId = ?"
-			)
+			.prepare("UPDATE counting_count SET count = count + 1 WHERE serverId = ?")
 			.bind(serverId);
 		const updateLastPrepared = db.prepare(
 			"UPDATE counting_last SET userId = ? WHERE serverId = ?"

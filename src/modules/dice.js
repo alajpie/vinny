@@ -33,9 +33,7 @@ module.exports = {
 								: " - " + -modifier;
 						if (dice > 1 || modifierDisplay) {
 							msg.channel.send(
-								`[${rolls.join(
-									", "
-								)}]${modifierDisplay} = ${result}`
+								`[${rolls.join(", ")}]${modifierDisplay} = ${result}`
 							);
 						} else {
 							msg.channel.send(result);
