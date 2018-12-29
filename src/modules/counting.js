@@ -21,7 +21,9 @@ module.exports = {
 			.prepare("SELECT userId FROM counting_last WHERE serverId = ?")
 			.bind(serverId);
 		const incrementCountPrepared = db
-			.prepare("UPDATE counting_count SET count = count + 1 WHERE serverId = ?")
+			.prepare(
+				"UPDATE counting_count SET count = count + 1 WHERE serverId = ?"
+			)
 			.bind(serverId);
 		const updateLastPrepared = db.prepare(
 			"UPDATE counting_last SET userId = ? WHERE serverId = ?"
@@ -31,6 +33,10 @@ module.exports = {
 			onMessage: function({ msg }) {
 				if (msg.channel.id !== config.channel) return;
 				if (msg.type === "PINS_ADD") return;
+				if (msg.attachments.size > 0) {
+					msg.delete(500);
+					return;
+				}
 				db.transaction(() => {
 					const last = getLastPrepared.get().userId;
 					debug({ last });
