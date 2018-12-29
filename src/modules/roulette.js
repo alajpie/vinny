@@ -31,7 +31,7 @@ module.exports = {
 				uP(message, dclient.channels.get(config.channel), dclient);
 			},
 
-			onMessage: async function({ msg, dclient }) {
+			onMessage: function({ msg, dclient }) {
 				if (msg.channel.id !== config.channel) return;
 				if (msg.author.id === dclient.user.id) return;
 				if (Math.random() <= percentage / 100) {
