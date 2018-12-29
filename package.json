@@ -1,6 +1,7 @@
 {
     "license": "AGPL-3.0-or-later",
     "dependencies": {
+        "async-lock": "^1.1.3",
         "better-sqlite3": "^5.2.1",
         "chalk": "^2.4.1",
         "debounce": "^1.2.0",

@@ -1,7 +1,7 @@
 const { debug, info, error, fatal, assert } = require("../logging.js");
 
 module.exports = {
-	init: async function({ config, db, serverId }) {
+	init: async function({ config, db, serverId, lock }) {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS counting_count (serverId TEXT, count INTEGER, UNIQUE (serverId))"
 		).run();
@@ -35,23 +35,29 @@ module.exports = {
 					msg.delete(500);
 					return;
 				}
-				db.transaction(() => {
-					const last = getLastPrepared.get().userId;
-					debug({ last });
-					if (msg.author.id === last) {
-						msg.delete(500);
-						return;
-					}
-					const count = getCountPrepared.get().count;
-					debug({ count });
-					if (msg.content !== count.toString()) {
-						msg.delete(500);
-						return;
-					}
-					incrementCountPrepared.run();
-					updateLastPrepared.run(msg.author.id, serverId);
-					msg.channel.setTopic(`Next number: ${count + 1}`);
-				})();
+				lock
+					.acquire(
+						"counting",
+						db.transaction(done => {
+							debug("counting lock acquired");
+							const last = getLastPrepared.get().userId;
+							debug({ last });
+							if (msg.author.id === last) {
+								msg.delete(500);
+								return;
+							}
+							const count = getCountPrepared.get().count;
+							debug({ count });
+							if (msg.content !== count.toString()) {
+								msg.delete(500);
+								return;
+							}
+							incrementCountPrepared.run();
+							updateLastPrepared.run(msg.author.id, serverId);
+							msg.channel.setTopic(`Next number: ${count + 1}`);
+						})
+					)
+					.then(() => debug("counting lock released"));
 			},
 			onEdit: function({ prev, next }) {
 				if (next.channel.id !== config.channel) return;

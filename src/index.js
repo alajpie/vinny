@@ -5,6 +5,8 @@ const path = require("path");
 const glob = require("glob");
 const delve = require("dlv");
 const sqlite = require("better-sqlite3");
+const asynclock = require("async-lock");
+const lock = new asynclock();
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
 process.on("unhandledRejection", e => {
@@ -74,7 +76,8 @@ async function main() {
 						await mod.init({
 							config: delve(serverConfig, ["moduleConfig", mod.name], {}),
 							db,
-							serverId
+							serverId,
+							lock
 						})
 					);
 				}
