@@ -1,7 +1,7 @@
 const { debug, info, error, fatal, assert } = require("../logging.js");
 
 module.exports = {
-	init: async function({ config, db, serverId, lock }) {
+	init: function({ config, db, serverId, lock }) {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS counting_count (serverId TEXT, count INTEGER, UNIQUE (serverId))"
 		).run();
