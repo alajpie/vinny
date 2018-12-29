@@ -6,31 +6,38 @@ async function update(dataPrepared, channel, dclient) {
 	const messageHeader =
 		"Use the `tz` command with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself to the list.";
 	let messageText = messageHeader;
-	data.forEach(row => {
-		const numericOffset =
+	data.map(row => {
+		row.numericOffset =
 			// timezone database has opposite offsets, see https://github.com/eggert/tz/blob/2017b/etcetera#L36-L42
 			moment.tz.zone(row.timezone).utcOffset(moment()) / -60;
-		let formattedOffset;
-		if (numericOffset > 0) {
-			formattedOffset = "+" + numericOffset;
-		} else if (numericOffset === 0) {
-			formattedOffset = " 0";
-		} else {
-			formattedOffset = numericOffset.toString();
-		}
-		const time = moment()
-			.tz(row.timezone)
-			.format("HH:mm");
-		const tag = dclient.users.get(row.userId).tag;
-		messageText += `\n\`${time} (${formattedOffset})\` ${tag}`;
-	});
+		return row;
+	})
+		.sort((a, b) => a.numericOffset - b.numericOffset)
+		.forEach(row => {
+			let numericOffset = row.numericOffset;
+			let formattedOffset;
+			if (numericOffset > 0) {
+				formattedOffset = "+" + numericOffset;
+			} else if (numericOffset === 0) {
+				formattedOffset = " 0";
+			} else {
+				formattedOffset = numericOffset.toString();
+			}
+			const time = moment()
+				.tz(row.timezone)
+				.format("HH:mm");
+			const tag = dclient.users.get(row.userId).tag;
+			messageText += `\n\`${time} (${formattedOffset})\` ${tag}`;
+		});
 	const messages = await dclient.channels
 		.get(channel)
 		.fetchMessages({ limit: 10 });
 	const persistentMessage = messages
 		.array()
 		.find(
-			x => x.author.id === dclient.user.id && x.content.includes(messageHeader)
+			x =>
+				x.author.id === dclient.user.id &&
+				x.content.includes(messageHeader)
 		);
 	if (persistentMessage) {
 		persistentMessage.edit(messageText);
