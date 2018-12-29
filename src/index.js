@@ -72,11 +72,7 @@ async function main() {
 				if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
 					moduleInstances[serverId].push(
 						await mod.init({
-							config: delve(
-								serverConfig,
-								["moduleConfig", mod.name],
-								{}
-							),
+							config: delve(serverConfig, ["moduleConfig", mod.name], {}),
 							db,
 							serverId
 						})

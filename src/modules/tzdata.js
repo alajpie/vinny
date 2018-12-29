@@ -6,12 +6,13 @@ async function update(dataPrepared, channel, dclient) {
 	const messageHeader =
 		"Use the `tz` command with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself to the list.";
 	let messageText = messageHeader;
-	data.map(row => {
-		row.numericOffset =
-			// timezone database has opposite offsets, see https://github.com/eggert/tz/blob/2017b/etcetera#L36-L42
-			moment.tz.zone(row.timezone).utcOffset(moment()) / -60;
-		return row;
-	})
+	data
+		.map(row => {
+			row.numericOffset =
+				// timezone database has opposite offsets, see https://github.com/eggert/tz/blob/2017b/etcetera#L36-L42
+				moment.tz.zone(row.timezone).utcOffset(moment()) / -60;
+			return row;
+		})
 		.sort((a, b) => a.numericOffset - b.numericOffset)
 		.forEach(row => {
 			let numericOffset = row.numericOffset;
@@ -35,9 +36,7 @@ async function update(dataPrepared, channel, dclient) {
 	const persistentMessage = messages
 		.array()
 		.find(
-			x =>
-				x.author.id === dclient.user.id &&
-				x.content.includes(messageHeader)
+			x => x.author.id === dclient.user.id && x.content.includes(messageHeader)
 		);
 	if (persistentMessage) {
 		persistentMessage.edit(messageText);

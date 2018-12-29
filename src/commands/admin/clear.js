@@ -5,8 +5,7 @@ module.exports = {
 			if (args[1]) {
 				// a range
 				// so both numbers are IDs
-				var limit =
-					BigInt(args[0]) < BigInt(args[1]) ? args[0] : args[1];
+				var limit = BigInt(args[0]) < BigInt(args[1]) ? args[0] : args[1];
 				var b4 = BigInt(args[0]) > BigInt(args[1]) ? args[0] : args[1];
 				var b4 = (BigInt(b4) + 1n).toString(); // inclusive from both sides
 			} else {

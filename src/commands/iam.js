@@ -3,10 +3,7 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 module.exports = {
 	init: ({ config }) => {
 		const iam = add => async ({ msg, rawArgs }) => {
-			assert(
-				msg.guild.roles.has(config.separatorRole),
-				"valid separator role"
-			);
+			assert(msg.guild.roles.has(config.separatorRole), "valid separator role");
 			const separatorRole = msg.guild.roles.get(config.separatorRole);
 			const role = msg.guild.roles.find(
 				x => x.name.toLowerCase() === rawArgs.toLowerCase()
@@ -21,8 +18,7 @@ module.exports = {
 			} else {
 				if (!msg.member.roles.has(role.id))
 					return "You weren't but now you aren't even more.";
-				if (role.comparePositionTo(separatorRole) >= 0)
-					return "yes you are";
+				if (role.comparePositionTo(separatorRole) >= 0) return "yes you are";
 				await msg.member.removeRole(role);
 				return "Removed!";
 			}
