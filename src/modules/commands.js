@@ -14,13 +14,13 @@ commandPaths.forEach(x => {
 info("Command packs loaded:", commandPacks.map(x => x.name));
 
 module.exports = {
-	init: function({ config, db, serverId }) {
+	init: function({ config, db, serverId, lock }) {
 		let commands = {};
 		commandPacks.forEach(x => {
 			if (!config.blacklist || !config.blacklist.includes(x.name)) {
 				commands = Object.assign(
 					commands,
-					x.init({ config: config[x.name] || {}, db, serverId })
+					x.init({ config: config[x.name] || {}, db, serverId, lock })
 				);
 			}
 		});
