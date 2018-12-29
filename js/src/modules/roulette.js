@@ -1,17 +1,24 @@
 const debounce = require("debounce");
 
 async function updatePersistent(message, channel, dclient) {
-	(await channel.fetchMessages({ limit: 50 })).array().forEach(x => {
+	let alreadyThere = false;
+	(await channel.fetchMessages({ limit: 50 })).array().forEach((x, i) => {
 		// not the exact message because if we change the config
 		// we want the old persistent message deleted
 		if (
 			x.author.id === dclient.user.id &&
 			x.content.includes("Every message you send here")
 		) {
-			x.delete();
+			if (i === 0) {
+				alreadyThere = true;
+			} else {
+				x.delete();
+			}
 		}
 	});
-	channel.send(message);
+	if (!alreadyThere) {
+		channel.send(message);
+	}
 }
 
 module.exports = {
@@ -20,6 +27,10 @@ module.exports = {
 		const percentage = config.percentage || 1;
 		const message = `**Every message you send here is a ${percentage}% chance of getting banned from this channel.**`;
 		return {
+			onReady: function({ msg, dclient }) {
+				uP(message, dclient.channels.get(config.channel), dclient);
+			},
+
 			onMessage: async function({ msg, dclient }) {
 				if (msg.channel.id !== config.channel) return;
 				if (msg.author.id === dclient.user.id) return;
