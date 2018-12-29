@@ -1,5 +1,5 @@
 {
-    "license": "BSD-3-Clause",
+    "license": "AGPL-3.0-or-later",
     "dependencies": {
         "better-sqlite3": "^5.2.1",
         "chalk": "^2.4.1",
