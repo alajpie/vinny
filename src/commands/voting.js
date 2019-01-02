@@ -83,9 +83,17 @@ module.exports = {
 						leading <= voteRequired,
 						"leading option below or equal to threshold"
 					);
-					const total = votes[FOR] + votes[AGAINST];
-					assert(total <= roleSize, "vote total below or equal to role size");
-					if (leading === voteRequired || total === roleSize) {
+					const second = Math.min(votes[FOR], votes[AGAINST]);
+					const voteTotal = votes[FOR] + votes[AGAINST];
+					assert(
+						voteTotal <= roleSize,
+						"vote total below or equal to role size"
+					);
+					if (
+						leading === voteRequired ||
+						voteTotal === roleSize ||
+						roleSize - voteTotal /*uncast votes*/ < leading - second /*gap*/
+					) {
 						done();
 						rmvote(true)({ msg });
 					} else {
