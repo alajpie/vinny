@@ -5,6 +5,7 @@ const path = require("path");
 const glob = require("glob");
 const delve = require("dlv");
 const sqlite = require("better-sqlite3");
+const ON_DEATH = require("death"); // intentionally ugly
 const asynclock = require("async-lock");
 const lock = new asynclock();
 const { debug, info, error, fatal, assert } = require("./logging.js");
@@ -24,8 +25,9 @@ async function main() {
 	debug("Opening SQLite database");
 	assert(!!process.env.SQLITE, "valid SQLite path");
 	const db = sqlite(process.env.SQLITE);
-	process.on("SIGTERM", async () => {
+	ON_DEATH(() => {
 		db.close();
+		process.exit(1);
 	});
 	debug("SQLite opened");
 	db.pragma("journal_mode = WAL");
