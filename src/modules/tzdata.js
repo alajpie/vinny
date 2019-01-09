@@ -27,7 +27,8 @@ async function update(dataPrepared, channel, dclient) {
 			const time = moment()
 				.tz(row.timezone)
 				.format("HH:mm");
-			const tag = dclient.users.get(row.userId).tag;
+			const user = dclient.users.get(row.userId);
+			const tag = user ? user.tag : `<@!${row.userId}>`;
 			messageText += `\n\`${time} (${formattedOffset})\` ${tag}`;
 		});
 	const messages = await dclient.channels
