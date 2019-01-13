@@ -4,20 +4,15 @@ module.exports = {
 			"SELECT sum, RANK() OVER (ORDER BY sum DESC) rank FROM points_sum WHERE serverId = ? AND userId = ?"
 		);
 		const leaderboardsPrepared = db.prepare(
-			"SELECT RANK() OVER (ORDER BY sum DESC) rank, sum, userId FROM points_sum ORDER BY sum DESC"
+			"SELECT RANK() OVER (ORDER BY sum DESC) rank, sum, userId FROM points_sum ORDER BY sum DESC LIMIT 10"
 		);
 		const leaderboards = ({ msg, dclient }) => {
 			let out = "```\n";
-			leaderboardsPrepared
-				.all()
-				.slice(0, 10)
-				.forEach(row => {
-					const user = dclient.users.get(row.userId);
-					const name = user ? user.username : `<@!${row.userId}>`;
-					out += `#${row.rank} ${row.sum
-						.toString()
-						.padStart(7, " ")} ${name}\n`;
-				});
+			leaderboardsPrepared.all().forEach(row => {
+				const user = dclient.users.get(row.userId);
+				const name = user ? user.username : `<@!${row.userId}>`;
+				out += `#${row.rank} ${row.sum.toString().padStart(7, " ")} ${name}\n`;
+			});
 			out += "```";
 			return out;
 		};
