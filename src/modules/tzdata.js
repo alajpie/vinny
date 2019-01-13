@@ -28,8 +28,8 @@ async function update(dataPrepared, channel, dclient) {
 				.tz(row.timezone)
 				.format("HH:mm");
 			const user = dclient.users.get(row.userId);
-			const tag = user ? user.tag : `<@!${row.userId}>`;
-			messageText += `\n\`${time} (${formattedOffset})\` ${tag}`;
+			const name = user ? user.name : `<@!${row.userId}>`;
+			messageText += `\n\`${time} (${formattedOffset})\` ${name}`;
 		});
 	const messages = await dclient.channels
 		.get(channel)

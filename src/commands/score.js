@@ -6,15 +6,17 @@ module.exports = {
 		const leaderboardsPrepared = db.prepare(
 			"SELECT RANK() OVER (ORDER BY sum DESC) rank, sum, userId FROM points_sum ORDER BY sum DESC"
 		);
-		const leaderboards = ({ msg }) => {
+		const leaderboards = ({ msg, dclient }) => {
 			let out = "```\n";
 			leaderboardsPrepared
 				.all()
 				.slice(0, 10)
 				.forEach(row => {
-					const u = msg.guild.members.get(row.userId);
-					const tag = u ? u.user.tag : "<unknown>";
-					out += `#${row.rank} ${row.sum.toString().padStart(7, " ")} ${tag}\n`;
+					const user = dclient.users.get(row.userId);
+					const name = user ? user.username : `<@!${row.userId}>`;
+					out += `#${row.rank} ${row.sum
+						.toString()
+						.padStart(7, " ")} ${name}\n`;
 				});
 			out += "```";
 			return out;
