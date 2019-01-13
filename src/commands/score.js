@@ -4,7 +4,7 @@ module.exports = {
 			"SELECT sum, (SELECT COUNT(*) + 1 FROM points_sum WHERE serverId = ps.serverId AND sum > ps.sum) rank FROM points_sum ps WHERE serverId = ? AND userId = ?"
 		);
 		const leaderboardsPrepared = db.prepare(
-			"SELECT RANK() OVER (ORDER BY sum DESC) rank, sum, userId FROM points_sum WHERE serverId = ? ORDER BY sum DESC LIMIT 10"
+			"SELECT RANK() OVER (ORDER BY sum DESC) rank, sum, userId FROM points_sum WHERE serverId = ? ORDER BY sum DESC LIMIT 9"
 		);
 		const leaderboards = ({ msg, dclient }) => {
 			let out = "```\n";
