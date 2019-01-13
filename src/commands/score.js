@@ -22,7 +22,9 @@ module.exports = {
 				return `${row.sum} (#${row.rank})`;
 			},
 			leaderboards,
-			leaderboard: leaderboards
+			leaderboard: leaderboards,
+			scoreboard: leaderboards,
+			lb: leaderboards
 		};
 	}
 };
