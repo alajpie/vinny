@@ -1,5 +1,8 @@
 module.exports = {
 	init: ({ db }) => {
+		db.prepare(
+			"CREATE TABLE IF NOT EXISTS points_sum (serverId TEXT, userId TEXT, sum INTEGER, UNIQUE (serverId, userId))"
+		).run();
 		const scorePrepared = db.prepare(
 			"SELECT sum, (SELECT COUNT(*) + 1 FROM points_sum WHERE serverId = ps.serverId AND sum > ps.sum) rank FROM points_sum ps WHERE serverId = ? AND userId = ?"
 		);
