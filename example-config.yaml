@@ -1,0 +1,42 @@
+servers:
+  "514121360851599371":
+    modules:
+      - "hello"
+      - "commands"
+      - "dice"
+      - "r5k"
+      - "counting"
+      - "tzdata"
+      - "roulette"
+      - "nick-museum"
+      - "ephemeral"
+    moduleConfig:
+      # hello:
+      #   greeting: hi
+      #   name: Autoclave
+      commands:
+        prefixes:
+          - "'"
+          - ";"
+          - "prefix"
+        iam:
+          separatorRole: "514133987308994575"
+        voting:
+          creatorRole: "514124155273347084"
+          defaultRole: "514129652634222622"
+      r5k:
+        channel: "514124754207113226"
+        failChannel: "514124773551243290"
+      counting:
+        channel: "517047271347585065"
+      roulette:
+        channel: "517784617684828162"
+        percentage: 50
+      tzdata:
+        channel: "514124814294712341"
+      nick-museum:
+        channel: "514132045744832523"
+        role: "514132380282257410"
+      ephemeral:
+        channel: "523645006486175744"
+        expiry: 600
