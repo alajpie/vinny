@@ -22,7 +22,7 @@ module.exports = {
 					msg.delete(500);
 					dclient.channels
 						.get(config.failChannel)
-						.send(`${msg.author.tag}: ${msg.content}`);
+						.send(`${msg.author.username}: ${msg.content}`);
 				} else if (!exists) {
 					insertPrepared.run(stripped);
 				}
