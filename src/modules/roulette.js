@@ -34,6 +34,7 @@ module.exports = {
 			onMessage: function({ msg, dclient }) {
 				if (msg.channel.id !== config.channel) return;
 				if (msg.author.id === dclient.user.id) return;
+				if (msg.type === "PINS_ADD") return;
 				if (Math.random() <= percentage / 100) {
 					msg.channel.send(`Bye ${msg.author.tag}...`);
 					msg.channel.overwritePermissions(msg.author, {
