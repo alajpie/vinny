@@ -32,7 +32,7 @@ module.exports = {
 					// called with a timezone
 					if (!moment.tz.zone(timezone)) {
 						msg.channel.send(
-							"Invalid timezone, please use what this page: <https://jsfiddle.net/d708xu4e> says."
+							"Invalid timezone, please use what this page: <https://ipapi.co/timezone> says."
 						);
 						return;
 					}

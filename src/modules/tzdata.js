@@ -4,7 +4,7 @@ const { debug, info, error, fatal, assert } = require("../logging.js");
 async function update(dataPrepared, channel, dclient) {
 	const data = dataPrepared.all();
 	const messageHeader =
-		"Use the `tz` command with what this page: <https://jsfiddle.net/d708xu4e> says to add yourself to the list.";
+		"Use the `tz` command with what this page: <https://ipapi.co/timezone> says to add yourself to the list.";
 	let messageText = messageHeader;
 	data
 		.map(row => {
