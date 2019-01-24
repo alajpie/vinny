@@ -14,6 +14,7 @@
         "moment-timezone": "^0.5.23",
         "promise-fs": "^2.0.1",
         "superagent": "^4.0.0",
-        "superb": "^3.0.0"
+        "superb": "^3.0.0",
+        "to-zalgo": "^1.0.1"
     }
 }
