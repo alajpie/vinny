@@ -13,7 +13,7 @@ module.exports = {
 			let out = "```\n";
 			leaderboardsPrepared.all(msg.guild.id).forEach(row => {
 				const user = dclient.users.get(row.userId);
-				const name = user ? user.username : `<@!${row.userId}>`;
+				const name = user ? user.username : `<${row.userId}>`;
 				out += `#${row.rank} ${row.sum.toString().padStart(7, " ")} ${name}\n`;
 			});
 			out += "```";
