@@ -15,10 +15,9 @@ module.exports = {
 		return {
 			onMessage: function({ msg, dclient }) {
 				if (msg.author.id === dclient.user.id) return;
-				const change = Math.floor(5 + Math.min(msg.content.length / 10, 10));
 				db.transaction(() => {
-					insertPrepared.run(msg.guild.id, msg.author.id, change, Date.now());
-					increaseSumPrepared.run(msg.guild.id, msg.author.id, change, change);
+					insertPrepared.run(msg.guild.id, msg.author.id, msg.content.length, Date.now());
+					increaseSumPrepared.run(msg.guild.id, msg.author.id, msg.content.length, msg.content.length);
 				})();
 			}
 		};
