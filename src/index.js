@@ -79,6 +79,7 @@ async function main() {
 							config: delve(serverConfig, ["moduleConfig", mod.name], {}),
 							db,
 							serverId,
+							secrets,
 							lock
 						})
 					);
