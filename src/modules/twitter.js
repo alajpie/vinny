@@ -4,7 +4,7 @@ const Twit = require("twit");
 const re = /\bhttps?:\/\/twitter\.com\/[^\/]+\/status\/([0-9]+)/g;
 
 module.exports = {
-	init: ({ secrets }) => {
+	init: function({ secrets }) {
 		const T = new Twit({
 			consumer_key: secrets.twitterConsumerKey,
 			consumer_secret: secrets.twitterConsumerSecret,
@@ -12,7 +12,7 @@ module.exports = {
 		});
 
 		return {
-			onMessage: async ({ msg }) => {
+			onMessage: async function({ msg }) {
 				const match = re.exec(msg.content);
 
 				if (!match) {
