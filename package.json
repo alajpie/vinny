@@ -15,6 +15,8 @@
         "promise-fs": "^2.0.1",
         "superagent": "^4.0.0",
         "superb": "^3.0.0",
-        "to-zalgo": "^1.0.1"
+        "to-zalgo": "^1.0.1",
+        "ulid": "^2.3.0",
+        "uuid": "^3.3.2"
     }
 }
