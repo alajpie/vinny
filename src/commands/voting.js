@@ -260,6 +260,8 @@ module.exports = {
 			for: vote(true),
 			sure: vote(true),
 			yep: vote(true),
+			ye: vote(true),
+			yee: vote(true),
 			yeah: vote(true),
 			totally: vote(true),
 			absolutely: vote(true),
