@@ -32,11 +32,11 @@ module.exports = {
 				prefixes.forEach(async prefix => {
 					const commandRegex = new RegExp(
 						`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
-						"ig"
+						"igs"
 					);
 					let commandMatch, argsMatch;
 					while (
-						(commandMatch = commandRegex.exec(msg.content.replace(/\n/g, " ")))
+						(commandMatch = commandRegex.exec(msg.content))
 					) {
 						let [_, command, rawArgs] = commandMatch;
 						command = command.toLowerCase()
