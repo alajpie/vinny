@@ -32,13 +32,14 @@ module.exports = {
 				prefixes.forEach(async prefix => {
 					const commandRegex = new RegExp(
 						`(?:^|\\s)${prefix}(\\w+)(?: +(.*?) *)?(?:$|${prefix}end)`,
-						"g"
+						"ig"
 					);
 					let commandMatch, argsMatch;
 					while (
 						(commandMatch = commandRegex.exec(msg.content.replace(/\n/g, " ")))
 					) {
-						const [_, command, rawArgs] = commandMatch;
+						let [_, command, rawArgs] = commandMatch;
+						command = command.toLowerCase()
 						const args = [];
 						if (rawArgs !== undefined) {
 							while ((argsMatch = argsRegex.exec(rawArgs))) {
