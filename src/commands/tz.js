@@ -1,6 +1,7 @@
 const moment = require("moment-timezone");
 
 module.exports = {
+	commands: { tz: null },
 	init: ({ db, serverId }) => {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS tzdata (userId TEXT PRIMARY KEY, timezone TEXT)"

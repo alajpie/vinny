@@ -4,6 +4,24 @@ const FOR = 1;
 const AGAINST = 0;
 
 module.exports = {
+	commands: {
+		yes: [
+			"yea",
+			"aye",
+			"for",
+			"sure",
+			"yep",
+			"ye",
+			"yee",
+			"yeah",
+			"totally",
+			"absolutely"
+		],
+		no: ["nay", "against", "nah", "nope", "nuh", "never"],
+		vote: null,
+		mkvote: null,
+		rmvote: null
+	},
 	init: ({ db, serverId, lock, config }) => {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS votes (serverId TEXT, userId TEXT, direction INTEGER, UNIQUE (serverId, userId))"

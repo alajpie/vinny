@@ -16,8 +16,18 @@ module.exports = {
 			onMessage: function({ msg, dclient }) {
 				if (msg.author.id === dclient.user.id) return;
 				db.transaction(() => {
-					insertPrepared.run(msg.guild.id, msg.author.id, msg.content.length, Date.now());
-					increaseSumPrepared.run(msg.guild.id, msg.author.id, msg.content.length, msg.content.length);
+					insertPrepared.run(
+						msg.guild.id,
+						msg.author.id,
+						msg.content.length,
+						Date.now()
+					);
+					increaseSumPrepared.run(
+						msg.guild.id,
+						msg.author.id,
+						msg.content.length,
+						msg.content.length
+					);
 				})();
 			}
 		};

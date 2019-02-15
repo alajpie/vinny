@@ -1,4 +1,5 @@
 module.exports = {
+	commands: { leaderboards: ["scoreboard", "lb"], score: null },
 	init: ({ db }) => {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS points_sum (serverId TEXT, userId TEXT, sum INTEGER, UNIQUE (serverId, userId))"

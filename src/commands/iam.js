@@ -1,6 +1,7 @@
 const { debug, info, error, fatal, assert } = require("../logging.js");
 
 module.exports = {
+	commands: { iam: null, iamnot: ["iamn"] },
 	init: ({ config }) => {
 		const iam = add => async ({ msg, rawArgs }) => {
 			assert(msg.guild.roles.has(config.separatorRole), "valid separator role");

@@ -35,11 +35,9 @@ module.exports = {
 						"igs"
 					);
 					let commandMatch, argsMatch;
-					while (
-						(commandMatch = commandRegex.exec(msg.content))
-					) {
+					while ((commandMatch = commandRegex.exec(msg.content))) {
 						let [_, command, rawArgs] = commandMatch;
-						command = command.toLowerCase()
+						command = command.toLowerCase();
 						const args = [];
 						if (rawArgs !== undefined) {
 							while ((argsMatch = argsRegex.exec(rawArgs))) {
@@ -54,8 +52,19 @@ module.exports = {
 									typeof x.canExecute !== "function" ||
 									x.canExecute({ msg })
 								) {
-									// causes side effects if .init() is impure, TODO add .commands property?
-									executableCommands.push(Object.keys(x.init({ config })));
+									if (typeof x.commands === "object") {
+										const inPack = [];
+										Object.keys(x.commands).forEach(y => {
+											if (x.commands[y]) {
+												inPack.push(`${y} (${x.commands[y].join(", ")})`);
+											} else {
+												inPack.push(y);
+											}
+										});
+										executableCommands.push(inPack);
+									} else {
+										executableCommands.push(Object.keys(x.init({ config })));
+									}
 								}
 							});
 							msg.channel.send(
