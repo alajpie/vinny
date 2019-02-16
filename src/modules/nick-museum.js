@@ -6,7 +6,7 @@ module.exports = {
 				if (!next.roles.has(config.role)) return;
 				dclient.channels
 					.get(config.channel)
-					.send(`${next.user.tag}: ${next.nickname}`);
+					.send(`${next.user.username}: ${next.nickname}`);
 			}
 		};
 	}
