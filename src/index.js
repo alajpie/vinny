@@ -15,13 +15,6 @@ process.on("unhandledRejection", e => {
 });
 
 async function main() {
-	info(`Commit ${process.env.COMMIT || "unknown"}`);
-	if (process.env.NODE_ENV === "production") {
-		info("Production tier");
-	} else {
-		info("Dev tier");
-	}
-
 	debug("Opening SQLite database");
 	assert(!!process.env.SQLITE, "valid SQLite path");
 	const db = sqlite(process.env.SQLITE);
