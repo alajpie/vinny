@@ -124,6 +124,54 @@ async function initaliseDiscord(config, secrets, moduleInstances) {
 		callModules(msg, "onMessage", { msg });
 	});
 
+	// shim for getting reaction events on all messages, not just cached ones
+	// https://github.com/discordjs/guide/blob/master/code-samples/popular-topics/reactions/raw-event.js
+	const events = {
+		MESSAGE_REACTION_ADD: "messageReactionAdd",
+		MESSAGE_REACTION_REMOVE: "messageReactionRemove"
+	};
+
+	dclient.on("raw", async event => {
+		if (!events.hasOwnProperty(event.t)) return;
+
+		const { d: data } = event;
+		const user = dclient.users.get(data.user_id);
+		const channel =
+			dclient.channels.get(data.channel_id) || (await user.createDM());
+
+		if (channel.messages.has(data.message_id)) return;
+
+		const message = await channel.fetchMessage(data.message_id);
+		const emojiKey = data.emoji.id
+			? `${data.emoji.name}:${data.emoji.id}`
+			: data.emoji.name;
+		let reaction = message.reactions.get(emojiKey);
+
+		if (!reaction) {
+			const emoji = new Discord.Emoji(
+				dclient.guilds.get(data.guild_id),
+				data.emoji
+			);
+			reaction = new Discord.MessageReaction(
+				message,
+				emoji,
+				1,
+				data.user_id === dclient.user.id
+			);
+		}
+
+		dclient.emit(events[event.t], reaction, user);
+	});
+	// end
+	
+	dclient.on("messageReactionAdd", (react, user) => {
+		callModules(react.message, "onReact", { react, user });
+	});
+
+	dclient.on("messageReactionRemove", (react, user) => {
+		callModules(react.message, "onUnreact", { react, user });
+	});
+
 	dclient.login(secrets.discordToken);
 
 	return new Promise((resolve, reject) => {
