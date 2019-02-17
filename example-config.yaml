@@ -10,6 +10,10 @@ servers:
       - "roulette"
       - "nick-museum"
       - "ephemeral"
+      - "points"
+      - "dice"
+      - "pins"
+      - "emoji-stats"
     moduleConfig:
       # hello:
       #   greeting: hi
@@ -31,7 +35,7 @@ servers:
         channel: "517047271347585065"
       roulette:
         channel: "517784617684828162"
-        percentage: 50
+        percentage: 1
       tzdata:
         channel: "514124814294712341"
       nick-museum:
@@ -40,3 +44,12 @@ servers:
       ephemeral:
         channel: "523645006486175744"
         expiry: 600
+      pins:
+        pins:
+          - "📌"
+          - "📍"
+          - "🌟"
+          - "⭐"
+        antipins: []
+        threshold: 3
+        channel: "546477354197975040"
