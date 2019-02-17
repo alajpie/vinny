@@ -41,6 +41,9 @@ module.exports = {
 		const addVotePrepared = db.prepare(
 			"INSERT INTO votes (serverId, userId, direction) VALUES (?, ?, ?)"
 		);
+		const changeVotePrepared = db.prepare(
+			"UPDATE votes SET direction = ? WHERE serverId = ? AND userId = ?"
+		);
 		const voteCountsPrepared = db.prepare(
 			"SELECT direction, COUNT(*) FROM votes WHERE serverId = ? GROUP BY direction"
 		);
@@ -81,15 +84,21 @@ module.exports = {
 						serverId,
 						msg.author.id
 					);
-					if (votedAlready) {
-						msg.channel.send("You've already voted.");
-						done();
-						return;
-					}
 
-					debug("adding a vote", up ? "for" : "against");
-					addVotePrepared.run(serverId, msg.author.id, up ? FOR : AGAINST);
-					msg.react("\uD83D\uDDF3"); // https://emojipedia.org/ballot-box-with-ballot
+					if (votedAlready) {
+						debug("changing a vote to", up ? "for" : "against");
+						changeVotePrepared.run(up ? FOR : AGAINST, serverId, msg.author.id);
+					} else {
+						debug("adding a vote", up ? "for" : "against");
+						addVotePrepared.run(serverId, msg.author.id, up ? FOR : AGAINST);
+					}
+					msg
+						.react("\uD83D\uDDF3") // https://emojipedia.org/ballot-box-with-ballot
+						.then(() => {
+							if (votedAlready) {
+								msg.react("\uD83D\uDD04"); // https://emojipedia.org/anticlockwise-downwards-and-upwards-open-circle-arrows
+							}
+						});
 
 					const votes = { [FOR]: 0, [AGAINST]: 0 };
 					voteCountsPrepared.all(serverId).forEach(x => {
