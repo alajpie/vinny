@@ -11,6 +11,7 @@ module.exports = {
 
 		return {
 			onMessage: function({ msg, dclient }) {
+				if (msg.author.id === dclient.user.id) return;
 				const set = new Set();
 				let match;
 				while ((match = regex.exec(msg.content))) {
