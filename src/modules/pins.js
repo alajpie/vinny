@@ -17,6 +17,7 @@ module.exports = {
 						x.users.array().forEach(y => set.add(y.id));
 					}
 				});
+				set.delete(react.message.author.id)
 				if (
 					set.size >= config.threshold &&
 					!existsPrepared.get(react.message.id)
