@@ -57,7 +57,7 @@ module.exports = {
 		).run();
 		const dataPrepared = db
 			.prepare(
-				"SELECT tzdata.userId, tzdata.timezone FROM tzdata INNER JOIN tzdata_servers ON tzdata.userId=tzdata_servers.userId WHERE tzdata_servers.serverId = ?"
+				"SELECT tzdata.userId, tzdata.timezone FROM tzdata INNER JOIN tzdata_servers ON tzdata.userId = tzdata_servers.userId WHERE tzdata_servers.serverId = ?"
 			)
 			.bind(serverId);
 

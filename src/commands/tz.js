@@ -10,7 +10,7 @@ module.exports = {
 			"CREATE TABLE IF NOT EXISTS tzdata_servers (serverId TEXT, userId TEXT, UNIQUE (serverId, userId), FOREIGN KEY (userId) REFERENCES tzdata (userId) ON DELETE CASCADE)"
 		).run();
 		const insertTimezonePrepared = db.prepare(
-			"INSERT INTO tzdata (userId, timezone) VALUES (?, ?) ON CONFLICT (userId) DO UPDATE SET timezone=excluded.timezone"
+			"INSERT INTO tzdata (userId, timezone) VALUES (?, ?) ON CONFLICT (userId) DO UPDATE SET timezone = excluded.timezone"
 		);
 		const insertServerPrepared = db.prepare(
 			"INSERT INTO tzdata_servers (serverId, userId) VALUES (?, ?) ON CONFLICT (serverId, userId) DO NOTHING"
