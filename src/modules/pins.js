@@ -11,15 +11,19 @@ module.exports = {
 		return {
 			onReact: function({ react, user, dclient }) {
 				if (react.message.channel.id === config.channel) return;
-				const set = new Set();
+				const pins = new Set();
+				const antipins = new Set();
 				react.message.reactions.forEach(x => {
-					if (config.emojis.includes(x.emoji.toString())) {
-						x.users.array().forEach(y => set.add(y.id));
+					if (config.pins.includes(x.emoji.toString())) {
+						x.users.array().forEach(y => pins.add(y.id));
+					}
+					if (config.antipins.includes(x.emoji.toString())) {
+						x.users.array().forEach(y => antipins.add(y.id));
 					}
 				});
-				set.delete(react.message.author.id)
+				pins.delete(react.message.author.id)
 				if (
-					set.size >= config.threshold &&
+					pins.size - antipins.size >= config.threshold &&
 					!existsPrepared.get(react.message.id)
 				) {
 					dclient.channels
