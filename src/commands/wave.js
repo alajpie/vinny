@@ -11,7 +11,7 @@ module.exports = {
 				const nu =
 					orig.substr(0, i) + orig[i].toUpperCase() + orig.substr(i + 1);
 				await nuMsg.edit(nu);
-				setTimeout(() => wave(nuMsg, orig, i + 1), config.delay);
+				setTimeout(() => wave(nuMsg, orig, i + 1), config.delay || 1000);
 			};
 			wave(nuMsg, orig, 0);
 		}
