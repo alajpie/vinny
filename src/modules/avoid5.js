@@ -10,6 +10,14 @@ module.exports = {
 				) {
 					msg.delete(500);
 				}
+			},
+			onEdit: function({ next }) {
+				if (
+					next.channel.id === config.channel &&
+					normalize(next.content.toLowerCase()).includes("e")
+				) {
+					next.delete(500);
+				}
 			}
 		};
 	}
