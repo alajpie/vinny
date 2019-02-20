@@ -18,7 +18,12 @@ module.exports = {
 			/// so regardless of whether a count or a message's ID is provided, it does the right thing
 			/// (since message IDs are very big numbers, they are unlikely to be specified or counted down to)
 
-			let i = parseInt(limit) + 1; // clear out the clear command too
+			let i;
+			if (limit === "inf") {
+				i = Infinity;
+			} else {
+				i = parseInt(limit) + 1; // clear out the clear command too
+			}
 			const promises = [];
 			while (i > 0) {
 				const messagesPromise = msg.channel.fetchMessages({
