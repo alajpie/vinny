@@ -1,3 +1,5 @@
+const { debug, info, error, fatal, assert } = require("../../logging.js");
+
 module.exports = {
 	init: () => ({
 		clear: async ({ args, msg }) => {
@@ -24,8 +26,8 @@ module.exports = {
 			} else {
 				i = parseInt(limit) + 1; // clear out the clear command too
 			}
-			const promises = [];
-			while (i > 0) {
+			const toDelete = new Set();
+			outer: while (i > 0) {
 				const messagesPromise = msg.channel.fetchMessages({
 					limit: 50,
 					before: b4
@@ -37,14 +39,17 @@ module.exports = {
 				b4 = messages[messages.length - 1].id;
 				for (var x of messages) {
 					i--;
-					promises.push(x.delete().catch(() => {}));
+					toDelete.add(x.id);
 					if (x.id === limit || i <= 0) {
-						await Promise.all(promises);
-						return;
+						break outer;
 					}
 				}
 			}
-			await Promise.all(promises);
+			debug("finished scanning for messages to delete");
+			const deleted = await msg.channel.bulkDelete(Array.from(toDelete), true);
+			const remaining = new Set([...toDelete].filter(x => !deleted.has(x)));
+			debug(remaining.size, "messages remaining for slow deletion");
+			remaining.forEach(x => msg.channel.fetchMessage(x).delete());
 			return;
 		}
 	}),
