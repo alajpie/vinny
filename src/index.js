@@ -3,10 +3,10 @@ const yaml = require("js-yaml");
 const fs = require("promise-fs");
 const path = require("path");
 const glob = require("glob");
-const delve = require("dlv");
 const sqlite = require("better-sqlite3");
 const ON_DEATH = require("death"); // intentionally ugly
 const asynclock = require("async-lock");
+const _ = require("lodash");
 const lock = new asynclock();
 const { debug, info, error, fatal, assert } = require("./logging.js");
 
@@ -66,10 +66,10 @@ async function main() {
 		moduleInstances[serverId] = [];
 		promises.push(
 			...modules.map(async mod => {
-				if (delve(serverConfig, ["modules"], []).includes(mod.name)) {
+				if (_.get(serverConfig, ["modules"], []).includes(mod.name)) {
 					moduleInstances[serverId].push(
 						await mod.init({
-							config: delve(serverConfig, ["moduleConfig", mod.name], {}),
+							config: _.get(serverConfig, ["moduleConfig", mod.name], {}),
 							db,
 							serverId,
 							lock
@@ -163,7 +163,7 @@ async function initaliseDiscord(config, secrets, moduleInstances) {
 		dclient.emit(events[event.t], reaction, user);
 	});
 	// end
-	
+
 	dclient.on("messageReactionAdd", (react, user) => {
 		callModules(react.message, "onReact", { react, user });
 	});

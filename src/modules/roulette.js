@@ -1,4 +1,4 @@
-const debounce = require("debounce");
+const _ = require("lodash");
 
 async function updatePersistent(message, channel, dclient) {
 	let alreadyThere = false;
@@ -23,7 +23,7 @@ async function updatePersistent(message, channel, dclient) {
 
 module.exports = {
 	init: function({ config }) {
-		const uP = debounce(updatePersistent, 1000);
+		const uP = _.debounce(updatePersistent, 1000);
 		const percentage = config.percentage || 1;
 		const message = `**Every message you send here is a ${percentage}% chance of getting banned from this channel.**`;
 		return {
