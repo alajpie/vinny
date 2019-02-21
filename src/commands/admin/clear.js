@@ -2,7 +2,7 @@ const { debug, info, error, fatal, assert } = require("../../logging.js");
 
 module.exports = {
 	init: () => ({
-		clear: async ({ args, msg }) => {
+		clear: async ({ dclient, args, msg }) => {
 			if (!msg.member.hasPermission("MANAGE_MESSAGES")) return "no";
 			if (args[1]) {
 				// a range
@@ -46,7 +46,10 @@ module.exports = {
 				}
 			}
 			debug("finished scanning for messages to delete");
-			const deleted = await msg.channel.bulkDelete(Array.from(toDelete), true);
+			let deleted = new Set();
+			if (dclient.user.bot) {
+				deleted = await msg.channel.bulkDelete(Array.from(toDelete), true);
+			}
 			const remaining = new Set([...toDelete].filter(x => !deleted.has(x)));
 			debug(remaining.size, "messages remaining for slow deletion");
 			remaining.forEach(x => msg.channel.fetchMessage(x).delete());
