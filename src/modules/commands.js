@@ -1,5 +1,6 @@
 const glob = require("glob");
 const path = require("path");
+const escapeStringRegexp = require("escape-string-regexp");
 const { debug, info, error, fatal, assert } = require("../logging.js");
 
 const argsRegex = /"(.*?)"|'(.*?)'|(\S+)/g;
@@ -24,7 +25,8 @@ module.exports = {
 				);
 			}
 		});
-		const prefixes = config.prefixes || ["'", ";"];
+		let prefixes = config.prefixes || ["'", ";"];
+		prefixes = prefixes.map(x => escapeStringRegexp(x));
 
 		return {
 			onMessage: function({ dclient, msg }) {
