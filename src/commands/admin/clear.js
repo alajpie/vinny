@@ -52,7 +52,9 @@ module.exports = {
 			}
 			const remaining = new Set([...toDelete].filter(x => !deleted.has(x)));
 			debug(remaining.size, "messages remaining for slow deletion");
-			remaining.forEach(x => msg.channel.fetchMessage(x).delete());
+			remaining.forEach(async x =>
+				(await msg.channel.fetchMessage(x)).delete()
+			);
 			return;
 		}
 	}),
