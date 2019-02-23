@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const { debug, info, error, fatal, assert } = require("../../logging.js");
 
 module.exports = {
@@ -48,7 +49,12 @@ module.exports = {
 			debug("finished scanning for messages to delete");
 			let deleted = new Set();
 			if (dclient.user.bot) {
-				deleted = await msg.channel.bulkDelete(Array.from(toDelete), true);
+				await Promise.all(
+					_.chunk(Array.from(toDelete), 100).map(async x => {
+						const batch = await msg.channel.bulkDelete(x, true);
+						deleted = new Set([...deleted, ...batch.map(x => x.id)]);
+					})
+				);
 			}
 			const remaining = new Set([...toDelete].filter(x => !deleted.has(x)));
 			debug(remaining.size, "messages remaining for slow deletion");
