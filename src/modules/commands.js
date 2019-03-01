@@ -25,7 +25,7 @@ module.exports = {
 				);
 			}
 		});
-		let prefixes = config.prefixes || ["'", ";"];
+		let prefixes = config.prefixes || ["'", "‘", ";"];
 		prefixes = prefixes.map(x => escapeStringRegexp(x));
 
 		return {
