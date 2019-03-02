@@ -1,3 +1,4 @@
+require("string.prototype.matchall").shim()
 const regex = /<:(\w+):(\d+)>/g;
 
 module.exports = {
@@ -14,7 +15,7 @@ module.exports = {
 				if (msg.author.id === dclient.user.id) return;
 				const set = new Set();
 				let match;
-				while ((match = regex.exec(msg.content))) {
+				for (const match of msg.content.matchAll(regex)) {
 					const [whole, name, id] = match;
 					if (
 						msg.guild.emojis.get(id) &&

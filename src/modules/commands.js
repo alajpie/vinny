@@ -1,6 +1,7 @@
 const glob = require("glob");
 const path = require("path");
 const escapeStringRegexp = require("escape-string-regexp");
+require("string.prototype.matchall").shim();
 const { debug, info, error, fatal, assert } = require("../logging.js");
 
 const argsRegex = /"(.*?)"|'(.*?)'|(\S+)/g;
@@ -37,12 +38,12 @@ module.exports = {
 						"igs"
 					);
 					let commandMatch, argsMatch;
-					while ((commandMatch = commandRegex.exec(msg.content))) {
+					for (const commandMatch of msg.content.matchAll(commandRegex)) {
 						let [_, command, rawArgs] = commandMatch;
 						command = command.toLowerCase();
 						const args = [];
 						if (rawArgs !== undefined) {
-							while ((argsMatch = argsRegex.exec(rawArgs))) {
+							for (const argsMatch of rawArgs.matchAll(argsRegex)) {
 								args.push(argsMatch.slice(1).find(x => x));
 							}
 						}
