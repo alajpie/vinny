@@ -4,7 +4,6 @@ module.exports = {
 	init: () => ({
 		emojis: ({ msg, dclient, globalConfig }) => {
 			const mojis = [];
-			console.log(globalConfig);
 			for (const serverId of _.get(
 				globalConfig,
 				["servers", msg.guild.id, "moduleConfig", "emojis", "servers"],
