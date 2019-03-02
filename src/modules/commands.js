@@ -16,7 +16,7 @@ commandPaths.forEach(x => {
 info("Command packs loaded:", commandPacks.map(x => x.name));
 
 module.exports = {
-	init: function({ config, db, serverId, lock }) {
+	init: function({ config, db, serverId, lock, globalConfig }) {
 		let commands = {};
 		commandPacks.forEach(x => {
 			if (!config.blacklist || !config.blacklist.includes(x.name)) {
@@ -80,7 +80,8 @@ module.exports = {
 								args,
 								rawArgs: rawArgs || "",
 								dclient,
-								msg
+								msg,
+								globalConfig
 							});
 							if (result) {
 								msg.channel.send(result);

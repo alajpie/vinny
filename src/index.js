@@ -70,6 +70,7 @@ async function main() {
 					moduleInstances[serverId].push(
 						await mod.init({
 							config: _.get(serverConfig, ["moduleConfig", mod.name], {}),
+							globalConfig: config,
 							db,
 							serverId,
 							lock
