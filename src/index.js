@@ -93,10 +93,10 @@ async function initaliseDiscord(config, secrets, moduleInstances) {
 	});
 
 	dclient.on("ready", () => {
-		for (let [server, mods] of Object.entries(moduleInstances)) {
+		for (let [serverId, mods] of Object.entries(moduleInstances)) {
 			mods.forEach(x => {
 				if (typeof x.onReady === "function") {
-					x.onReady({ dclient });
+					x.onReady({ dclient, serverId });
 				}
 			});
 		}
