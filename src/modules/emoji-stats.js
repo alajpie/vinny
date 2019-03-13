@@ -1,4 +1,4 @@
-require("string.prototype.matchall").shim()
+require("string.prototype.matchall").shim();
 const regex = /<:(\w+):(\d+)>/g;
 
 module.exports = {
