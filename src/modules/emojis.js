@@ -5,6 +5,7 @@ module.exports = {
 		return {
 			onMessage: function({ msg, dclient }) {
 				if (msg.author.id === dclient.user.id) return;
+				const queue = [];
 				for (const match of msg.content
 					.toLowerCase()
 					.matchAll(/(?:[^<]|^):([^ \n:]+):/g)) {
@@ -14,10 +15,13 @@ module.exports = {
 							x => x.name.toLowerCase() === match[1]
 						);
 						if (emoji) {
-							msg.channel.send(emoji.toString());
+							queue.push(emoji.toString());
 							break;
 						}
 					}
+				}
+				if (queue.length) {
+					msg.channel.send(queue.join(" "));
 				}
 			}
 		};
