@@ -9,7 +9,14 @@ module.exports = {
 				for (const match of msg.content
 					.toLowerCase()
 					.matchAll(/(?:[^<]|^):([^ \n:]+):/g)) {
-					for (const serverId of config.servers) {
+					const servers = [
+						...config.servers,
+						...(config.restrictedChannels &&
+						config.restrictedChannels.includes(msg.channel.id)
+							? config.restrictedServers
+							: [])
+					];
+					for (const serverId of servers) {
 						const guild = dclient.guilds.get(serverId);
 						const emoji = guild.emojis.find(
 							x => x.name.toLowerCase() === match[1]
