@@ -42,7 +42,9 @@ module.exports = {
 					mojis.push(emoji.toString());
 				}
 			}
-			return mojis.join(" ");
+			for (const x of _.chunk(mojis, 50)) {
+				msg.channel.send(x.join(" "));
+			}
 		}
 	})
 };
