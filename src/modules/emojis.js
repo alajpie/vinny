@@ -19,7 +19,9 @@ module.exports = {
 					for (const serverId of servers) {
 						const guild = dclient.guilds.get(serverId);
 						const emoji = guild.emojis.find(
-							x => x.name.toLowerCase() === match[1]
+							x =>
+								x.name.toLowerCase().replace("_", "") ===
+								match[1].replace("_", "")
 						);
 						if (emoji) {
 							queue.push(emoji.toString());
